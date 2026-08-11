@@ -35,6 +35,24 @@
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     th, td { padding: 10px; border: 1px solid #334155; text-align: left; }
     th { background: #0f172a; }
+
+    /* Video Protection CSS */
+    .video-container {
+      position: relative;
+      width: 100%;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 15px 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    video {
+      width: 100%;
+      height: auto;
+      display: block;
+      outline: none;
+    }
   </style>
 </head>
 <body>
@@ -95,7 +113,7 @@
       
       <h3>1. Site Content Management (JSON)</h3>
       <div class="form-group">
-        <textarea id="site-json-input" rows="8" placeholder='{"subjects":[{"name":"Math","topics":["Calculus"]}]}'></textarea>
+        <textarea id="site-json-input" rows="8" placeholder='{"subjects":[{"name":"Math","videos":["https://example.com/video.mp4"]}]}'></textarea>
       </div>
       <button onclick="handleSaveSiteContent()">Save Content</button>
 
@@ -117,7 +135,7 @@
 
 <script>
   let sbClient = null;
-  let currentUser = null; // { role: 'student'|'admin', data: ... }
+  let currentUser = null; 
   let currentAdminPassword = "";
 
   function showMessage(msg, isError = false) {
@@ -203,9 +221,74 @@
   async function loadPublicData() {
     const { data, error } = await sbClient.from('site_data').select('data').eq('id', 1).single();
     if(!error && data) {
-      document.getElementById('content-display').innerHTML = `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+      renderProtectedContent(data.data);
       document.getElementById('site-json-input').value = JSON.stringify(data.data, null, 2);
     }
+  }
+
+  // Render Function with Video Protection Controls
+  function renderProtectedContent(jsonObj) {
+    const display = document.getElementById('content-display');
+    display.innerHTML = '';
+
+    const contentStr = JSON.stringify(jsonObj, null, 2);
+    const pre = document.createElement('pre');
+    pre.textContent = contentStr;
+    display.appendChild(pre);
+
+    // Dynamic Video Protection Handler
+    const videoUrls = extractVideoUrls(jsonObj);
+    if(videoUrls.length > 0) {
+      const vidTitle = document.createElement('h3');
+      vidTitle.style.marginTop = '20px';
+      vidTitle.textContent = 'Protected Class Videos';
+      display.appendChild(vidTitle);
+
+      videoUrls.forEach(url => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'video-container';
+        
+        const video = document.createElement('video');
+        video.src = url;
+        video.controls = true;
+        
+        // Anti-Sharing & Anti-Download Attributes
+        video.setAttribute('controlsList', 'nodownload noremoteplayback noplaybackrate');
+        video.setAttribute('disablePictureInPicture', 'true');
+        video.setAttribute('oncontextmenu', 'return false;');
+        
+        wrapper.appendChild(video);
+        display.appendChild(wrapper);
+      });
+    }
+
+    applyVideoProtections();
+  }
+
+  function extractVideoUrls(obj) {
+    let urls = [];
+    const str = JSON.stringify(obj);
+    const regex = /(https?:\/\/[^\s"]+\.(?:mp4|webm|m3u8))/g;
+    let match;
+    while ((match = regex.exec(str)) !== null) {
+      urls.push(match[1]);
+    }
+    return urls;
+  }
+
+  function applyVideoProtections() {
+    document.querySelectorAll('video').forEach(video => {
+      // Disable Context Menu (Right Click)
+      video.addEventListener('contextmenu', e => e.preventDefault());
+      
+      // Disable Dragging
+      video.addEventListener('dragstart', e => e.preventDefault());
+      
+      // Disable Key Shortcuts for video focus
+      video.addEventListener('keydown', e => {
+        if (e.key === 's' && (e.ctrlKey || e.metaKey)) e.preventDefault();
+      });
+    });
   }
 
   async function handleSaveSiteContent() {
@@ -299,6 +382,13 @@
     currentAdminPassword = "";
     updateUIState();
   }
+
+  // Prevent Right Click Globally on Video Overlay
+  document.addEventListener('contextmenu', event => {
+    if (event.target.tagName === 'VIDEO') {
+      event.preventDefault();
+    }
+  });
 </script>
 </body>
 </html>
