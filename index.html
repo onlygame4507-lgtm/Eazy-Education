@@ -1,400 +1,2753 @@
-<!DOCTYPE html>
-<html lang="bn">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StudyHub LMS Portal</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0b0f19;
-      --surface: #151c2c;
-      --border: #232d42;
-      --primary: #38bdf8;
-      --primary-hover: #0284c7;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --danger: #ef4444;
-      --success: #22c55e;
-      --radius: 12px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Hind Siliguri', system-ui, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; display: flex; justify-content: center; align-items: center; }
-    .app-container { width: 100%; max-width: 1000px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
-    
-    /* Header & Navigation */
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
-    .brand { font-size: 24px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-    .nav-btns { display: flex; gap: 10px; align-items: center; }
-    
-    /* Form & Elements */
-    .form-group { margin-bottom: 18px; }
-    label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 14px; font-weight: 500; }
-    input, textarea, select { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border); background: #0b0f19; color: #fff; font-size: 15px; transition: 0.2s; }
-    input:focus, textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15); }
-    
-    /* Buttons */
-    button { background: var(--primary); color: #000; font-weight: 600; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-size: 15px; }
-    button:hover { background: var(--primary-hover); color: #fff; transform: translateY(-1px); }
-    button.btn-danger { background: var(--danger); color: #fff; }
-    button.btn-danger:hover { background: #dc2626; }
-    button.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    button.btn-outline:hover { background: var(--border); }
-    
-    .hidden { display: none !important; }
-    .auth-card { max-width: 450px; margin: 0 auto; background: rgba(11, 15, 25, 0.5); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); }
-    
-    /* Alerts */
-    .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: 500; }
-    .alert-error { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: #fca5a5; }
-    .alert-success { background: rgba(34, 197, 94, 0.15); border: 1px solid var(--success); color: #86efac; }
-    
-    /* Video Grid & Protection */
-    .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
-    .video-card { background: #0b0f19; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
-    .video-card h4 { padding: 12px 15px; font-weight: 600; color: var(--text); border-bottom: 1px solid var(--border); }
-    video { width: 100%; height: auto; display: block; outline: none; background: #000; }
-    
-    /* Table Styling */
-    .table-responsive { overflow-x: auto; margin-top: 15px; }
-    table { width: 100%; border-collapse: collapse; text-align: left; }
-    th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); font-size: 14px; }
-    th { background: #0b0f19; color: var(--text-muted); font-weight: 600; }
-    tr:hover { background: rgba(255, 255, 255, 0.02); }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eazy Education</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+ background:#f5f7fb;
+ color:#172033
+}
+button,input{font:inherit}
+.hidden{display:none!important}
+
+.credit{
+ text-align:center;
+ background:#fff;
+ color:#8a93a1;
+ font-size:12px;
+ padding:10px;
+ border-bottom:1px solid #edf0f4
+}
+.credit span{color:#ef4444}
+
+.top{
+ height:68px;
+ background:#fff;
+ border-bottom:1px solid #e5e9f0;
+ display:flex;
+ align-items:center;
+ padding:0 20px;
+ gap:15px;
+ position:sticky;
+ top:0;
+ z-index:30
+}
+
+.menu{
+ border:0;
+ background:none;
+ display:grid;
+ gap:5px;
+ padding:10px;
+ cursor:pointer
+}
+.menu i{
+ display:block;
+ width:25px;
+ height:3px;
+ background:#475569;
+ border-radius:4px
+}
+
+.logo{
+ font-size:22px;
+ font-weight:850
+}
+.logo b{color:#2563eb}
+
+.avatar{
+ margin-left:auto;
+ width:39px;
+ height:39px;
+ border-radius:50%;
+ background:#eaf1ff;
+ display:grid;
+ place-items:center;
+ font-weight:800;
+ color:#2563eb
+}
+
+.container{
+ max-width:1100px;
+ margin:auto;
+ padding:28px 20px 60px
+}
+
+.auth{
+ min-height:calc(100vh - 35px);
+ display:grid;
+ place-items:center;
+ padding:20px;
+ background:linear-gradient(135deg,#eef4ff,#f7f5ff)
+}
+
+.auth-card{
+ width:min(430px,100%);
+ background:#fff;
+ padding:30px;
+ border-radius:22px;
+ box-shadow:0 20px 60px #26334d16
+}
+
+.tabs{
+ display:flex;
+ gap:5px;
+ background:#f2f4f8;
+ padding:4px;
+ border-radius:11px;
+ margin:20px 0
+}
+
+.tab{
+ flex:1;
+ border:0;
+ padding:10px;
+ border-radius:8px;
+ background:none;
+ font-weight:700;
+ color:#687386;
+ cursor:pointer
+}
+
+.tab.active{
+ background:#fff;
+ color:#2563eb
+}
+
+.field{margin-bottom:13px}
+
+.field label{
+ display:block;
+ font-size:13px;
+ font-weight:700;
+ margin-bottom:6px
+}
+
+.field input{
+ width:100%;
+ padding:12px;
+ border:1px solid #e5e9f0;
+ border-radius:10px;
+ outline:0
+}
+
+.btn{
+ border:0;
+ border-radius:10px;
+ padding:11px 15px;
+ font-weight:750;
+ cursor:pointer
+}
+
+.primary{
+ background:#2563eb;
+ color:#fff
+}
+
+.secondary{
+ background:#eef2f7;
+ color:#334155
+}
+
+.danger{
+ background:#fee2e2;
+ color:#b91c1c
+}
+
+.full{width:100%}
+
+.linkbtn{
+ border:0;
+ background:none;
+ color:#2563eb;
+ font-weight:700;
+ cursor:pointer
+}
+
+.msg{
+ padding:10px;
+ border-radius:10px;
+ font-size:13px;
+ margin-bottom:13px
+}
+
+.error{
+ background:#fee2e2;
+ color:#991b1b
+}
+
+.success{
+ background:#dcfce7;
+ color:#166534
+}
+
+.muted{color:#687386}
+
+.hero{
+ padding:22px 0 30px
+}
+
+.hero h1{
+ font-size:clamp(30px,5vw,48px);
+ margin:0
+}
+
+.grid3{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:18px
+}
+
+.grid2{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:18px
+}
+
+.card{
+ background:#fff;
+ border:1px solid #e5e9f0;
+ border-radius:17px;
+ padding:18px
+}
+
+.click{cursor:pointer}
+
+.card:hover{
+ border-color:#b9ccff
+}
+
+.back{
+ border:0;
+ background:none;
+ color:#2563eb;
+ font-weight:700;
+ padding:0;
+ margin-bottom:18px;
+ cursor:pointer
+}
+
+.thumb{
+ aspect-ratio:16/9;
+ background:#ddd;
+ border-radius:11px;
+ overflow:hidden
+}
+
+.thumb img{
+ width:100%;
+ height:100%;
+ object-fit:cover
+}
+
+.watch{margin-top:10px}
+
+.player{
+ background:#000;
+ border-radius:14px;
+ overflow:hidden
+}
+
+.player iframe{
+ display:block;
+ width:100%;
+ aspect-ratio:16/9;
+ border:0
+}
+
+.side{
+ position:fixed;
+ z-index:100;
+ top:0;
+ left:-285px;
+ width:270px;
+ height:100vh;
+ background:#fff;
+ box-shadow:10px 0 35px #0002;
+ padding:20px;
+ transition:.2s
+}
+
+.side.open{left:0}
+
+.side button{
+ display:block;
+ width:100%;
+ text-align:left;
+ border:0;
+ background:none;
+ padding:13px;
+ border-radius:10px;
+ font-weight:700;
+ cursor:pointer
+}
+
+.overlay{
+ display:none;
+ position:fixed;
+ inset:0;
+ background:#0005;
+ z-index:90
+}
+
+.overlay.show{display:block}
+
+.adminGrid{
+ display:grid;
+ grid-template-columns:280px 1fr;
+ gap:18px
+}
+
+.list{
+ display:grid;
+ gap:8px
+}
+
+.item{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:8px;
+ border:1px solid #e5e9f0;
+ border-radius:10px;
+ padding:10px
+}
+
+.actions{
+ display:flex;
+ gap:5px
+}
+
+.small{
+ padding:7px 9px;
+ font-size:12px
+}
+
+.empty{
+ text-align:center;
+ padding:28px;
+ color:#687386;
+ border:1px dashed #e5e9f0;
+ border-radius:12px
+}
+
+@media(max-width:800px){
+ .grid3{grid-template-columns:1fr 1fr}
+ .adminGrid{grid-template-columns:1fr}
+}
+
+@media(max-width:520px){
+ .grid3,.grid2{grid-template-columns:1fr}
+ .container{padding:22px 14px 45px}
+}
+</style>
 </head>
+
 <body>
 
-<div class="app-container">
-  <!-- Supabase Credentials Setup -->
-  <div id="config-section" class="auth-card">
-    <h2 style="margin-bottom: 15px; text-align: center;">StudyHub ডাটাবেস সংযোগ</h2>
-    <div class="form-group"><label>Supabase Project URL</label><input type="text" id="cfg-url" placeholder="https://xyz.supabase.co" /></div>
-    <div class="form-group"><label>Supabase Anon Key</label><input type="password" id="cfg-key" placeholder="your-anon-key" /></div>
-    <button onclick="initSupabase()" style="width: 100%;">Connect & Continue</button>
-  </div>
-
-  <div id="app-section" class="hidden">
-    <!-- Navigation Bar -->
-    <header class="header">
-      <div class="brand">🎓 StudyHub</div>
-      <div class="nav-btns">
-        <span id="user-info" style="font-weight:600; color: var(--primary);"></span>
-        <button id="btn-login-view" class="btn-outline" onclick="showAuth('login')">লগইন</button>
-        <button id="btn-reg-view" class="btn-outline" onclick="showAuth('register')">রেজিস্ট্রেশন</button>
-        <button id="btn-admin-view" class="btn-outline" onclick="showAuth('admin')">এডমিন</button>
-        <button id="btn-logout" class="btn-danger hidden" onclick="logout()">লগআউট</button>
-      </div>
-    </header>
-
-    <div id="msg-box"></div>
-
-    <!-- Student Login -->
-    <div id="auth-login" class="auth-card hidden">
-      <h2 style="margin-bottom:20px;">স্টুডেন্ট লগইন</h2>
-      <div class="form-group"><label>ইউজারনেম / ফোন নম্বর</label><input type="text" id="login-id" /></div>
-      <div class="form-group"><label>পাসওয়ার্ড</label><input type="password" id="login-pass" /></div>
-      <button onclick="handleStudentLogin()" style="width:100%;">লগইন করুন</button>
-    </div>
-
-    <!-- Student Registration -->
-    <div id="auth-register" class="auth-card hidden">
-      <h2 style="margin-bottom:20px;">নতুন স্টুডেন্ট রেজিস্ট্রেশন</h2>
-      <div class="form-group"><label>পূর্ণ নাম</label><input type="text" id="reg-name" /></div>
-      <div class="form-group"><label>ইউজারনেম / ফোন নম্বর</label><input type="text" id="reg-id" /></div>
-      <div class="form-group"><label>পাসওয়ার্ড (সর্বনিম্ন ৬ অক্ষর)</label><input type="password" id="reg-pass" /></div>
-      <button onclick="handleStudentRegister()" style="width:100%;">রেজিস্টার করুন</button>
-    </div>
-
-    <!-- Admin Login -->
-    <div id="auth-admin" class="auth-card hidden">
-      <h2 style="margin-bottom:20px;">এডমিন প্যানেল লগইন</h2>
-      <div class="form-group"><label>এডমিন পাসওয়ার্ড</label><input type="password" id="admin-pass" placeholder="Default: Nafiz2855" /></div>
-      <button onclick="handleAdminLogin()" style="width:100%;">এডমিন হিসেবে প্রবেশ করুন</button>
-    </div>
-
-    <!-- Student Dashboard -->
-    <div id="student-dash" class="hidden">
-      <h2 style="margin-bottom: 10px;">আমার কোর্স ক্লাসসমূহ</h2>
-      <p style="color: var(--text-muted); margin-bottom: 20px;">নিচে আপনার কোর্সের সুরক্ষিত ভিডিও কন্টেন্টগুলো দেওয়া হলো:</p>
-      <div id="content-display"></div>
-    </div>
-
-    <!-- Admin Dashboard -->
-    <div id="admin-dash" class="hidden">
-      <h2 style="margin-bottom: 20px;">এডমিন ড্যাশবোর্ড</h2>
-      
-      <div style="background: var(--bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 25px;">
-        <h3>১. ওয়েবসাইট কন্টেন্ট ম্যানেজমেন্ট (JSON Format)</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 10px;">কোর্সের ভিডিও বা সাবজেক্টের ডাটা সেভ করুন:</p>
-        <div class="form-group">
-          <textarea id="site-json-input" rows="7" placeholder='{"subjects":[{"title":"Physics Chapter 1","video":"https://example.com/video.mp4"}]}'></textarea>
-        </div>
-        <button onclick="handleSaveSiteContent()">ডাটা সেভ করুন</button>
-      </div>
-
-      <div style="background: var(--bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 25px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-          <h3>২. স্টুডেন্ট লিস্ট ও পাসওয়ার্ড ম্যানেজমেন্ট</h3>
-          <button class="btn-outline" onclick="loadStudentList()">রিফ্রেশ লিস্ট</button>
-        </div>
-        <div id="student-list-container" class="table-responsive"></div>
-      </div>
-
-      <div style="background: var(--bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border);">
-        <h3 style="margin-bottom: 15px;">৩. এডমিন পাসওয়ার্ড পরিবর্তন</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-          <div class="form-group"><label>বর্তমান পাসওয়ার্ড</label><input type="password" id="old-admin-pass" /></div>
-          <div class="form-group"><label>নতুন পাসওয়ার্ড</label><input type="password" id="new-admin-pass" /></div>
-        </div>
-        <button onclick="handleChangeAdminPassword()">পাসওয়ার্ড আপডেট করুন</button>
-      </div>
-    </div>
-  </div>
+<div class="credit">
+ This Website Is Made By Nafiz <span>♥️</span>
 </div>
 
+<!-- LOGIN -->
+<section id="auth" class="auth">
+
+<div class="auth-card">
+
+<div style="text-align:center;font-size:40px">🎓</div>
+
+<h1 style="text-align:center">
+ Eazy Education
+</h1>
+
+<p class="muted" style="text-align:center">
+ Student learning portal
+</p>
+
+<div class="tabs">
+<button id="studentTab" class="tab active">
+ Student Login
+</button>
+
+<button id="adminTab" class="tab">
+ Admin
+</button>
+</div>
+
+<div id="msg"></div>
+
+<!-- STUDENT -->
+<div id="studentAuth">
+
+<div id="loginBox">
+
+<div class="field">
+<label>Phone / Username</label>
+<input id="loginId" autocomplete="username">
+</div>
+
+<div class="field">
+<label>Password</label>
+<input id="loginPass" type="password" autocomplete="current-password">
+</div>
+
+<button id="loginBtn" class="btn primary full">
+ Login
+</button>
+
+<p style="text-align:center;font-size:13px">
+New student?
+<button id="toRegister" class="linkbtn">
+Create account
+</button>
+</p>
+
+</div>
+
+<!-- REGISTER -->
+
+<div id="registerBox" class="hidden">
+
+<div class="field">
+<label>Full name</label>
+<input id="regName" autocomplete="name">
+</div>
+
+<div class="field">
+<label>Phone / Username</label>
+<input id="regId" autocomplete="username">
+</div>
+
+<div class="field">
+<label>Password</label>
+<input id="regPass" type="password" autocomplete="new-password">
+</div>
+
+<button id="registerBtn" class="btn primary full">
+Create Account
+</button>
+
+<p style="text-align:center;font-size:13px">
+Already registered?
+<button id="toLogin" class="linkbtn">
+Login
+</button>
+</p>
+
+</div>
+
+</div>
+
+<!-- ADMIN LOGIN -->
+
+<div id="adminAuth" class="hidden">
+
+<div class="field">
+<label>Admin password</label>
+<input id="adminPass" type="password">
+</div>
+
+<button id="adminLogin" class="btn primary full">
+Open Admin Panel
+</button>
+
+</div>
+
+</div>
+</section>
+
+
+<!-- STUDENT WEBSITE -->
+
+<div id="studentApp" class="hidden">
+
+<header class="top">
+
+<button id="menuBtn" class="menu">
+<i></i>
+<i></i>
+<i></i>
+</button>
+
+<div class="logo">
+Eazy<b>Education</b>
+</div>
+
+<div id="avatar" class="avatar">
+S
+</div>
+
+</header>
+
+
+<div id="overlay" class="overlay"></div>
+
+
+<aside id="side" class="side">
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+
+<div class="logo">
+Eazy<b>Education</b>
+</div>
+
+<button id="closeSide"
+class="btn secondary small"
+style="width:auto;text-align:center">
+×
+</button>
+
+</div>
+
+<button id="homeBtn">
+🏠 Home
+</button>
+
+<button id="logoutBtn">
+🚪 Logout
+</button>
+
+</aside>
+
+
+<main>
+
+<!-- HOME -->
+
+<section id="homeView">
+
+<div class="container">
+
+<div class="hero">
+
+<h1>
+What do you want to learn?
+</h1>
+
+<p class="muted">
+Choose a subject to continue your study.
+</p>
+
+</div>
+
+<div id="subjects" class="grid3"></div>
+
+</div>
+
+</section>
+
+
+<!-- TOPICS -->
+
+<section id="topicView" class="hidden">
+
+<div class="container">
+
+<button id="topicBack" class="back">
+← All Subjects
+</button>
+
+<h1 id="topicTitle"></h1>
+
+<div id="topics" class="grid3"></div>
+
+</div>
+
+</section>
+
+
+<!-- VIDEOS -->
+
+<section id="videoView" class="hidden">
+
+<div class="container">
+
+<button id="videoBack" class="back">
+← Topics
+</button>
+
+<h1 id="videoTitle"></h1>
+
+<div id="videos" class="grid2"></div>
+
+</div>
+
+</section>
+
+
+<!-- WATCH -->
+
+<section id="watchView" class="hidden">
+
+<div class="container">
+
+<button id="watchBack" class="back">
+← Videos
+</button>
+
+<div class="card">
+
+<div class="player">
+
+<iframe
+id="player"
+allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+allowfullscreen>
+</iframe>
+
+</div>
+
+<h2 id="watchTitle"></h2>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+
+<!-- ADMIN -->
+
+<section id="adminPage" class="hidden">
+
+<header class="top">
+
+<div class="logo">
+Eazy<b>Education</b> Admin
+</div>
+
+<button id="adminExit"
+class="btn secondary small"
+style="margin-left:auto">
+Exit
+</button>
+
+</header>
+
+
+<div class="container">
+
+<h1>
+Admin Panel
+</h1>
+
+<p class="muted">
+Content is stored online in Supabase.
+</p>
+
+<div id="adminMsg"></div>
+
+
+<div style="margin:18px 0">
+
+<button id="studentsBtn"
+class="btn secondary">
+👥 Students
+</button>
+
+</div>
+
+
+<!-- STUDENTS -->
+
+<div id="studentsPanel"
+class="card hidden"
+style="margin-bottom:18px">
+
+<h2>
+Students
+</h2>
+
+<div id="students"></div>
+
+</div>
+
+
+<div class="adminGrid">
+
+
+<!-- SUBJECTS -->
+
+<div class="card">
+
+<h2>
+Subjects
+</h2>
+
+<div id="adminSubjects" class="list"></div>
+
+<hr>
+
+<input
+id="newSubject"
+placeholder="Subject name"
+style="width:100%;padding:11px;border:1px solid #e5e9f0;border-radius:9px">
+
+<button
+id="addSubject"
+class="btn primary"
+style="margin-top:8px">
+
++ Add Subject
+
+</button>
+
+</div>
+
+
+<!-- EDITOR -->
+
+<div class="card">
+
+<h2 id="editorTitle">
+Select a subject
+</h2>
+
+<div id="editor" class="empty">
+Select a subject.
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-  let sbClient = null;
-  let currentUser = null; 
-  let currentAdminPassword = "";
 
-  function showMessage(msg, isError = false) {
-    const box = document.getElementById('msg-box');
-    box.innerHTML = `<div class="alert ${isError ? 'alert-error' : 'alert-success'}">${msg}</div>`;
-    setTimeout(() => box.innerHTML = '', 4000);
-  }
+"use strict";
 
-  function initSupabase() {
-    const url = document.getElementById('cfg-url').value.trim();
-    const key = document.getElementById('cfg-key').value.trim();
-    if(!url || !key) return alert('Supabase URL এবং Anon Key সঠিকভাবে প্রদান করুন।');
 
-    sbClient = supabase.createClient(url, key);
-    document.getElementById('config-section').classList.add('hidden');
-    document.getElementById('app-section').classList.remove('hidden');
-    showAuth('login');
-  }
+/* =========================
+   SUPABASE
+========================= */
 
-  function hideAllViews() {
-    ['auth-login', 'auth-register', 'auth-admin', 'student-dash', 'admin-dash'].forEach(id => {
-      document.getElementById(id).classList.add('hidden');
-    });
-  }
+const SUPABASE_URL =
+"https://koigpkmufqorivxeggia.supabase.co";
 
-  function showAuth(type) {
-    hideAllViews();
-    if(type === 'login') document.getElementById('auth-login').classList.remove('hidden');
-    if(type === 'register') document.getElementById('auth-register').classList.remove('hidden');
-    if(type === 'admin') document.getElementById('auth-admin').classList.remove('hidden');
-  }
+const SUPABASE_ANON_KEY =
+"sb_publishable_d6K-w7SB8KVHuT-CQgSK9A_ryXPqnS4";
 
-  // --- Student Auth (Using Supabase RPC) ---
-  async function handleStudentRegister() {
-    const name = document.getElementById('reg-name').value;
-    const login_id = document.getElementById('reg-id').value;
-    const password = document.getElementById('reg-pass').value;
 
-    const { data, error } = await sbClient.rpc('register_student', {
-      p_login_id: login_id, p_name: name, p_password: password
-    });
+const sb =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_ANON_KEY
+);
 
-    if(error || !data.success) {
-      return showMessage(data?.message || error?.message || 'রেজিস্ট্রেশন ব্যর্থ হয়েছে', true);
-    }
-    showMessage('রেজিস্ট্রেশন সফল হয়েছে! এখন লগইন করুন।');
-    showAuth('login');
-  }
 
-  async function handleStudentLogin() {
-    const login_id = document.getElementById('login-id').value;
-    const password = document.getElementById('login-pass').value;
+/* =========================
+   GLOBAL DATA
+========================= */
 
-    const { data, error } = await sbClient.rpc('login_student', {
-      p_login_id: login_id, p_password: password
-    });
+let site={
+ subjects:[]
+};
 
-    if(error || !data.success) {
-      return showMessage(data?.message || error?.message || 'লগইন সঠিক নয়', true);
-    }
+let currentSubject=null;
+let currentTopic=null;
+let adminSubject=null;
+let adminOpen=false;
 
-    currentUser = { role: 'student', name: data.name, id: data.id };
-    updateUIState();
-  }
 
-  // --- Admin Auth (Using Supabase RPC) ---
-  async function handleAdminLogin() {
-    const pass = document.getElementById('admin-pass').value;
+/* =========================
+   HELPERS
+========================= */
 
-    const { data, error } = await sbClient.rpc('admin_login', { p_password: pass });
+const $ =
+id=>document.getElementById(id);
 
-    if(error || !data.success) {
-      return showMessage(data?.message || error?.message || 'ভুল এডমিন পাসওয়ার্ড', true);
-    }
 
-    currentUser = { role: 'admin' };
-    currentAdminPassword = pass;
-    updateUIState();
-    loadStudentList();
-  }
+function uid(){
 
-  // --- Protected Content Fetching & Protected Video Player ---
-  async function loadPublicData() {
-    const { data, error } = await sbClient.from('site_data').select('data').eq('id', 1).single();
-    if(!error && data) {
-      renderProtectedContent(data.data);
-      document.getElementById('site-json-input').value = JSON.stringify(data.data, null, 2);
-    }
-  }
+return crypto.randomUUID?
+crypto.randomUUID():
+Date.now()+"_"+Math.random();
 
-  function renderProtectedContent(jsonObj) {
-    const display = document.getElementById('content-display');
-    display.innerHTML = '';
+}
 
-    const urls = extractVideoUrls(jsonObj);
-    
-    if(urls.length === 0) {
-      display.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 40px 0;">কোনো ভিডিও টিউটোরিয়াল পাওয়া যায়নি।</p>';
-      return;
-    }
 
-    const grid = document.createElement('div');
-    grid.className = 'video-grid';
+function esc(s){
 
-    urls.forEach((url, idx) => {
-      const card = document.createElement('div');
-      card.className = 'video-card';
+return String(s??"").replace(
+/[&<>"']/g,
+c=>({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[c])
+);
 
-      const title = document.createElement('h4');
-      title.textContent = `লেকচার - ${idx + 1}`;
+}
 
-      const video = document.createElement('video');
-      video.src = url;
-      video.controls = true;
-      
-      // Video Protections
-      video.setAttribute('controlsList', 'nodownload noremoteplayback noplaybackrate');
-      video.setAttribute('disablePictureInPicture', 'true');
-      video.setAttribute('oncontextmenu', 'return false;');
 
-      card.appendChild(title);
-      card.appendChild(video);
-      grid.appendChild(card);
-    });
+/* =========================
+   YOUTUBE ID
+========================= */
 
-    display.appendChild(grid);
-  }
+function ytId(url){
 
-  function extractVideoUrls(obj) {
-    let urls = [];
-    const str = JSON.stringify(obj);
-    const regex = /(https?:\/\/[^\s"]+\.(?:mp4|webm|m3u8|mov))/g;
-    let match;
-    while ((match = regex.exec(str)) !== null) {
-      urls.push(match[1]);
-    }
-    return urls;
-  }
+try{
 
-  // --- Admin Database Actions ---
-  async function handleSaveSiteContent() {
-    try {
-      const jsonData = JSON.parse(document.getElementById('site-json-input').value);
-      const { data, error } = await sbClient.rpc('admin_save_site', { p_data: jsonData });
-      if(error || !data.success) throw new Error(error?.message || 'Save failed');
-      showMessage('ডাটা সফলভাবে সেভ করা হয়েছে!');
-      loadPublicData();
-    } catch(err) {
-      showMessage('সঠিক JSON ফর্ম্যাট ব্যবহার করুন: ' + err.message, true);
-    }
-  }
+let x=new URL(url.trim());
 
-  async function loadStudentList() {
-    if(!currentAdminPassword) return;
-    const { data, error } = await sbClient.rpc('admin_list_students', { p_password: currentAdminPassword });
-    if(error || !data.success) return showMessage('স্টুডেন্ট লিস্ট লোড করা সম্ভব হয়নি', true);
+let host=
+x.hostname
+.replace(/^www\./,"")
+.toLowerCase();
 
-    let html = `<table><tr><th>নাম</th><th>ইউজারনেম/ফোন</th><th>রেজিস্ট্রেশন তারিখ</th><th>অ্যাকশন</th></tr>`;
-    data.students.forEach(s => {
-      html += `<tr>
-        <td>${s.name}</td>
-        <td>${s.login_id}</td>
-        <td>${new Date(s.created_at).toLocaleDateString()}</td>
-        <td><button class="btn-outline" style="padding:4px 10px; font-size:12px;" onclick="changeStudentPass('${s.id}')">Reset Pass</button></td>
-      </tr>`;
-    });
-    html += `</table>`;
-    document.getElementById('student-list-container').innerHTML = html;
-  }
+let path=
+x.pathname
+.split("/")
+.filter(Boolean);
 
-  async function changeStudentPass(studentId) {
-    const newPass = prompt("স্টুডেন্টের নতুন পাসওয়ার্ড লিখুন (Min 6 chars):");
-    if(!newPass) return;
 
-    const { data, error } = await sbClient.rpc('admin_change_password', {
-      p_admin_password: currentAdminPassword,
-      p_student_id: studentId,
-      p_new_password: newPass
-    });
+/* youtu.be */
 
-    if(error || !data.success) {
-      return showMessage(data?.message || error?.message || 'পাসওয়ার্ড পরিবর্তন হয়নি', true);
-    }
-    showMessage('স্টুডেন্ট পাসওয়ার্ড সফলভাবে রিসেট হয়েছে!');
-  }
+if(host==="youtu.be"){
 
-  async function handleChangeAdminPassword() {
-    const oldPass = document.getElementById('old-admin-pass').value;
-    const newPass = document.getElementById('new-admin-pass').value;
+return path[0]||null;
 
-    const { data, error } = await sbClient.rpc('change_admin_password', {
-      p_old_password: oldPass, p_new_password: newPass
-    });
+}
 
-    if(error || !data.success) {
-      return showMessage(data?.message || error?.message || 'এডমিন পাসওয়ার্ড পরিবর্তন হয়নি', true);
-    }
-    showMessage('এডমিন পাসওয়ার্ড পরিবর্তিত হয়েছে! পুনরায় লগইন করুন।');
-    currentAdminPassword = newPass;
-    logout();
-  }
 
-  function updateUIState() {
-    hideAllViews();
-    const userInfo = document.getElementById('user-info');
-    const logoutBtn = document.getElementById('btn-logout');
+/* youtube.com */
 
-    if(!currentUser) {
-      userInfo.innerText = '';
-      logoutBtn.classList.add('hidden');
-      document.getElementById('btn-login-view').classList.remove('hidden');
-      document.getElementById('btn-reg-view').classList.remove('hidden');
-      document.getElementById('btn-admin-view').classList.remove('hidden');
-      showAuth('login');
-      return;
-    }
+if(
+host==="youtube.com" ||
+host.endsWith(".youtube.com")
+){
 
-    document.getElementById('btn-login-view').classList.add('hidden');
-    document.getElementById('btn-reg-view').classList.add('hidden');
-    document.getElementById('btn-admin-view').classList.add('hidden');
-    logoutBtn.classList.remove('hidden');
+if(
+path[0]==="shorts" ||
+path[0]==="embed" ||
+path[0]==="live"
+){
 
-    if(currentUser.role === 'student') {
-      userInfo.innerText = `👋 ${currentUser.name}`;
-      document.getElementById('student-dash').classList.remove('hidden');
-      loadPublicData();
-    } else if(currentUser.role === 'admin') {
-      userInfo.innerText = `⚙️ Admin Mode`;
-      document.getElementById('admin-dash').classList.remove('hidden');
-      loadPublicData();
-    }
-  }
+return path[1]||null;
 
-  function logout() {
-    currentUser = null;
-    currentAdminPassword = "";
-    updateUIState();
-  }
+}
+
+return x.searchParams.get("v");
+
+}
+
+}catch(e){}
+
+return null;
+
+}
+
+
+/* =========================
+   MESSAGES
+========================= */
+
+function message(text,success=false){
+
+$("msg").innerHTML=text?
+
+`<div class="msg ${
+success?"success":"error"
+}">
+${esc(text)}
+</div>`:"";
+
+}
+
+
+function adminMessage(text,success=false){
+
+$("adminMsg").innerHTML=text?
+
+`<div class="msg ${
+success?"success":"error"
+}">
+${esc(text)}
+</div>`:"";
+
+}
+
+
+/* =========================
+   VIEW
+========================= */
+
+function view(id){
+
+[
+"homeView",
+"topicView",
+"videoView",
+"watchView"
+].forEach(x=>
+$(x).classList.add("hidden")
+);
+
+$(id).classList.remove("hidden");
+
+scrollTo(0,0);
+
+}
+
+
+/* =========================
+   NORMALIZE DATABASE DATA
+========================= */
+
+function normalize(){
+
+if(!Array.isArray(site.subjects))
+site.subjects=[];
+
+
+site.subjects=
+site.subjects.map(s=>({
+
+id:s.id||uid(),
+
+name:String(
+s.name||"Untitled"
+),
+
+icon:String(
+s.icon||"📚"
+),
+
+topics:
+Array.isArray(s.topics)?
+s.topics.map(t=>({
+
+id:t.id||uid(),
+
+name:String(
+t.name||"Chapter"
+),
+
+videos:
+Array.isArray(t.videos)?
+t.videos.map(v=>({
+
+id:v.id||uid(),
+
+title:String(
+v.title||"Video"
+),
+
+url:String(
+v.url||""
+)
+
+})):[ ]
+
+})):[]
+
+}));
+
+}
+
+
+/* =========================
+   LOAD SITE
+========================= */
+
+async function loadSite(){
+
+let r=
+await sb
+.from("site_data")
+.select("data")
+.eq("id",1)
+.maybeSingle();
+
+
+if(r.error)
+throw r.error;
+
+
+site=
+r.data?.data||{
+subjects:[]
+};
+
+normalize();
+
+}
+
+
+/* =========================
+   OPEN STUDENT
+========================= */
+
+function openStudent(user){
+
+$("auth").classList.add("hidden");
+
+$("adminPage").classList.add("hidden");
+
+$("studentApp").classList.remove("hidden");
+
+$("avatar").textContent=
+(user.name||"S")[0].toUpperCase();
+
+renderSubjects();
+
+view("homeView");
+
+}
+
+
+/* =========================
+   OPEN ADMIN
+========================= */
+
+function openAdmin(){
+
+adminOpen=true;
+
+$("auth").classList.add("hidden");
+
+$("studentApp").classList.add("hidden");
+
+$("adminPage").classList.remove("hidden");
+
+renderAdminSubjects();
+
+}
+
+
+/* =========================
+   AUTH
+========================= */
+
+function openAuth(){
+
+adminOpen=false;
+
+$("studentApp").classList.add("hidden");
+
+$("adminPage").classList.add("hidden");
+
+$("auth").classList.remove("hidden");
+
+sessionStorage.removeItem(
+"studyhub_admin"
+);
+
+}
+
+
+/* =========================
+   AUTH TABS
+========================= */
+
+$("studentTab").onclick=()=>{
+
+$("studentTab").classList.add("active");
+
+$("adminTab").classList.remove("active");
+
+$("studentAuth").classList.remove("hidden");
+
+$("adminAuth").classList.add("hidden");
+
+message("");
+
+};
+
+
+$("adminTab").onclick=()=>{
+
+$("adminTab").classList.add("active");
+
+$("studentTab").classList.remove("active");
+
+$("studentAuth").classList.add("hidden");
+
+$("adminAuth").classList.remove("hidden");
+
+message("");
+
+};
+
+
+/* =========================
+   REGISTER / LOGIN SWITCH
+========================= */
+
+$("toRegister").onclick=()=>{
+
+$("loginBox").classList.add("hidden");
+
+$("registerBox").classList.remove("hidden");
+
+message("");
+
+};
+
+
+$("toLogin").onclick=()=>{
+
+$("registerBox").classList.add("hidden");
+
+$("loginBox").classList.remove("hidden");
+
+message("");
+
+};
+
+
+/* =========================
+   REGISTER
+========================= */
+
+$("registerBtn").onclick=
+async()=>{
+
+let name=
+$("regName").value.trim();
+
+let loginId=
+$("regId").value.trim();
+
+let password=
+$("regPass").value;
+
+
+if(!name||!loginId||!password){
+
+return message(
+"Please fill in all fields."
+);
+
+}
+
+
+if(password.length<6){
+
+return message(
+"Password must be at least 6 characters."
+);
+
+}
+
+
+let r=
+await sb.rpc(
+"register_student",
+{
+p_name:name,
+p_login_id:loginId,
+p_password:password
+}
+);
+
+
+if(r.error){
+
+return message(
+r.error.message
+);
+
+}
+
+
+if(!r.data?.success){
+
+return message(
+r.data?.message||
+"Registration failed."
+);
+
+}
+
+
+message(
+"Account created. You can login now.",
+true
+);
+
+
+$("registerBox")
+.classList.add("hidden");
+
+$("loginBox")
+.classList.remove("hidden");
+
+$("loginId").value=
+loginId;
+
+$("loginPass").value="";
+
+};
+
+
+/* =========================
+   LOGIN
+========================= */
+
+$("loginBtn").onclick=
+async()=>{
+
+let loginId=
+$("loginId").value.trim();
+
+let password=
+$("loginPass").value;
+
+
+if(!loginId||!password){
+
+return message(
+"Enter username and password."
+);
+
+}
+
+
+let r=
+await sb.rpc(
+"login_student",
+{
+p_login_id:loginId,
+p_password:password
+}
+);
+
+
+if(r.error){
+
+return message(
+r.error.message
+);
+
+}
+
+
+if(!r.data?.success){
+
+return message(
+r.data?.message||
+"Wrong username or password."
+);
+
+}
+
+
+let user={
+
+name:r.data.name,
+
+login_id:r.data.login_id,
+
+id:r.data.id
+
+};
+
+
+localStorage.setItem(
+"studyhub_user",
+JSON.stringify(user)
+);
+
+
+openStudent(user);
+
+};
+
+
+/* =========================
+   ADMIN LOGIN
+========================= */
+
+$("adminLogin").onclick=
+async()=>{
+
+let password=
+$("adminPass").value;
+
+
+if(!password){
+
+return message(
+"Enter admin password."
+);
+
+}
+
+
+let r=
+await sb.rpc(
+"admin_login",
+{
+p_password:password
+}
+);
+
+
+if(r.error){
+
+return message(
+r.error.message
+);
+
+}
+
+
+if(!r.data?.success){
+
+return message(
+"Wrong admin password."
+);
+
+}
+
+
+sessionStorage.setItem(
+"studyhub_admin",
+"1"
+);
+
+
+openAdmin();
+
+};
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+$("adminExit").onclick=
+openAuth;
+
+
+$("logoutBtn").onclick=()=>{
+
+localStorage.removeItem(
+"studyhub_user"
+);
+
+$("player").src="";
+
+openAuth();
+
+};
+
+
+/* =========================
+   SIDE MENU
+========================= */
+
+$("menuBtn").onclick=()=>{
+
+$("side").classList.add("open");
+
+$("overlay").classList.add("show");
+
+};
+
+
+$("closeSide").onclick=
+closeSide;
+
+$("overlay").onclick=
+closeSide;
+
+
+function closeSide(){
+
+$("side").classList.remove("open");
+
+$("overlay").classList.remove("show");
+
+}
+
+
+$("homeBtn").onclick=()=>{
+
+closeSide();
+
+renderSubjects();
+
+view("homeView");
+
+};
+
+
+/* =========================
+   STUDENT SUBJECTS
+========================= */
+
+function renderSubjects(){
+
+$("subjects").innerHTML=
+site.subjects.map(s=>`
+
+<div
+class="card click"
+data-id="${esc(s.id)}"
+>
+
+<div style="font-size:34px">
+${esc(s.icon)}
+</div>
+
+<h2>
+${esc(s.name)}
+</h2>
+
+<p class="muted">
+${s.topics.length} chapter(s)
+</p>
+
+</div>
+
+`).join("")
+
+||
+
+`<div class="empty"
+style="grid-column:1/-1">
+No subjects yet.
+</div>`;
+
+
+$("subjects")
+.querySelectorAll("[data-id]")
+.forEach(card=>{
+
+card.onclick=()=>
+openTopics(card.dataset.id);
+
+});
+
+}
+
+
+/* =========================
+   TOPICS
+========================= */
+
+function openTopics(id){
+
+currentSubject=
+site.subjects.find(
+x=>x.id===id
+);
+
+if(!currentSubject)return;
+
+
+$("topicTitle").textContent=
+currentSubject.name;
+
+
+$("topics").innerHTML=
+currentSubject.topics.map(t=>`
+
+<div
+class="card click"
+data-id="${esc(t.id)}"
+>
+
+<h3>
+${esc(t.name)}
+</h3>
+
+<p class="muted">
+${t.videos.length} video(s)
+</p>
+
+</div>
+
+`).join("")
+
+||
+
+`<div class="empty"
+style="grid-column:1/-1">
+No chapters yet.
+</div>`;
+
+
+$("topics")
+.querySelectorAll("[data-id]")
+.forEach(card=>{
+
+card.onclick=()=>
+openVideos(card.dataset.id);
+
+});
+
+
+view("topicView");
+
+}
+
+
+/* =========================
+   VIDEOS
+========================= */
+
+function openVideos(id){
+
+currentTopic=
+currentSubject.topics.find(
+x=>x.id===id
+);
+
+if(!currentTopic)return;
+
+
+$("videoTitle").textContent=
+currentTopic.name;
+
+
+$("videos").innerHTML=
+currentTopic.videos.map(
+(v,i)=>{
+
+let y=ytId(v.url);
+
+return`
+
+<article class="card">
+
+<div class="thumb">
+
+${
+y?
+`<img
+src="https://img.youtube.com/vi/${encodeURIComponent(y)}/hqdefault.jpg"
+alt=""
+>`
+:""
+}
+
+</div>
+
+<h3>
+${esc(v.title)}
+</h3>
+
+<p class="muted">
+${esc(currentSubject.name)}
+•
+${esc(currentTopic.name)}
+</p>
+
+<button
+class="btn primary full watch"
+data-i="${i}"
+>
+▶ Watch Video
+</button>
+
+</article>
+
+`;
+
+}
+).join("")
+
+||
+
+`<div class="empty"
+style="grid-column:1/-1">
+No videos yet.
+</div>`;
+
+
+$("videos")
+.querySelectorAll("[data-i]")
+.forEach(button=>{
+
+button.onclick=()=>
+openWatch(
+Number(button.dataset.i)
+);
+
+});
+
+
+view("videoView");
+
+}
+
+
+/* =========================
+   WATCH VIDEO
+========================= */
+
+function openWatch(index){
+
+let video=
+currentTopic?.videos?.[index];
+
+let id=
+ytId(video?.url);
+
+
+if(!video||!id)return;
+
+
+$("watchTitle").textContent=
+video.title;
+
+
+/*
+YouTube player remains inside
+the website.
+*/
+
+$("player").src=
+"https://www.youtube.com/embed/"
++
+encodeURIComponent(id)
++
+"?rel=0&playsinline=1&controls=1&fs=1";
+
+
+view("watchView");
+
+}
+
+
+/* =========================
+   BACK BUTTONS
+========================= */
+
+$("topicBack").onclick=()=>{
+
+view("homeView");
+
+};
+
+
+$("videoBack").onclick=()=>{
+
+view("topicView");
+
+};
+
+
+$("watchBack").onclick=()=>{
+
+$("player").src="";
+
+view("videoView");
+
+};
+
+
+/* =========================
+   ADMIN SAVE
+========================= */
+
+async function saveSite(){
+
+normalize();
+
+
+let r=
+await sb.rpc(
+"admin_save_site",
+{
+p_data:site
+}
+);
+
+
+if(r.error)
+throw r.error;
+
+
+if(!r.data?.success){
+
+throw new Error(
+r.data?.message||
+"Could not save."
+);
+
+}
+
+}
+
+
+/* =========================
+   ADMIN SUBJECT LIST
+========================= */
+
+function renderAdminSubjects(){
+
+$("adminSubjects").innerHTML=
+site.subjects.map(s=>`
+
+<div class="item">
+
+<span>
+${esc(s.icon)}
+${esc(s.name)}
+</span>
+
+<div class="actions">
+
+<button
+class="btn secondary small"
+data-manage="${esc(s.id)}"
+>
+Manage
+</button>
+
+<button
+class="btn danger small"
+data-remove="${esc(s.id)}"
+>
+×
+</button>
+
+</div>
+
+</div>
+
+`).join("")
+
+||
+
+`<div class="empty">
+No subjects.
+</div>`;
+
+
+$("adminSubjects")
+.querySelectorAll("[data-manage]")
+.forEach(button=>{
+
+button.onclick=()=>
+manageSubject(
+button.dataset.manage
+);
+
+});
+
+
+$("adminSubjects")
+.querySelectorAll("[data-remove]")
+.forEach(button=>{
+
+button.onclick=()=>
+removeSubject(
+button.dataset.remove
+);
+
+});
+
+}
+
+
+/* =========================
+   ADD SUBJECT
+========================= */
+
+$("addSubject").onclick=
+async()=>{
+
+let name=
+$("newSubject").value.trim();
+
+
+if(!name)return;
+
+
+site.subjects.push({
+
+id:uid(),
+
+name:name,
+
+icon:"📚",
+
+topics:[]
+
+});
+
+
+try{
+
+await saveSite();
+
+$("newSubject").value="";
+
+renderAdminSubjects();
+
+adminMessage(
+"Subject added.",
+true
+);
+
+}catch(e){
+
+adminMessage(
+e.message
+);
+
+}
+
+};
+
+
+/* =========================
+   MANAGE SUBJECT
+========================= */
+
+function manageSubject(id){
+
+adminSubject=
+site.subjects.find(
+x=>x.id===id
+);
+
+if(!adminSubject)return;
+
+
+$("editorTitle").textContent=
+"Manage: "+adminSubject.name;
+
+
+renderEditor();
+
+}
+
+
+/* =========================
+   DELETE SUBJECT
+========================= */
+
+async function removeSubject(id){
+
+if(!confirm(
+"Delete subject and all chapters/videos?"
+))return;
+
+
+site.subjects=
+site.subjects.filter(
+x=>x.id!==id
+);
+
+
+try{
+
+await saveSite();
+
+adminSubject=null;
+
+renderAdminSubjects();
+
+$("editorTitle").textContent=
+"Select a subject";
+
+$("editor").innerHTML=
+`<div class="empty">
+Select a subject.
+</div>`;
+
+}catch(e){
+
+adminMessage(e.message);
+
+}
+
+}
+
+
+/* =========================
+   SUBJECT EDITOR
+========================= */
+
+function renderEditor(){
+
+let s=adminSubject;
+
+
+$("editor").className="";
+
+
+$("editor").innerHTML=`
+
+<div class="field">
+
+<label>
+Subject name
+</label>
+
+<input
+id="subName"
+value="${esc(s.name)}"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+Icon
+</label>
+
+<input
+id="subIcon"
+value="${esc(s.icon)}"
+>
+
+</div>
+
+
+<button
+class="btn primary"
+id="saveSub"
+>
+Save Subject
+</button>
+
+
+<hr>
+
+
+<h3>
+Chapters
+</h3>
+
+
+<div class="list">
+
+${
+s.topics.map(t=>`
+
+<div class="item">
+
+<span>
+${esc(t.name)}
+(${t.videos.length})
+</span>
+
+<div class="actions">
+
+<button
+class="btn secondary small"
+data-topic="${esc(t.id)}"
+>
+Manage
+</button>
+
+<button
+class="btn danger small"
+data-delete-topic="${esc(t.id)}"
+>
+×
+</button>
+
+</div>
+
+</div>
+
+`).join("")
+
+||
+
+`<div class="empty">
+No chapters.
+</div>`
+}
+
+</div>
+
+
+<hr>
+
+
+<input
+id="newTopic"
+placeholder="Chapter name"
+style="width:100%;padding:11px;border:1px solid #e5e9f0;border-radius:9px"
+>
+
+
+<button
+class="btn primary"
+style="margin-top:8px"
+id="addTopic"
+>
++ Add Chapter
+</button>
+
+
+<div
+id="topicEditor"
+style="margin-top:18px"
+></div>
+
+`;
+
+
+$("saveSub").onclick=
+saveSubjectInfo;
+
+
+$("addTopic").onclick=
+addTopic;
+
+
+$("editor")
+.querySelectorAll("[data-topic]")
+.forEach(button=>{
+
+button.onclick=()=>
+manageTopic(
+button.dataset.topic
+);
+
+});
+
+
+$("editor")
+.querySelectorAll("[data-delete-topic]")
+.forEach(button=>{
+
+button.onclick=()=>
+removeTopic(
+button.dataset.deleteTopic
+);
+
+});
+
+}
+
+
+/* =========================
+   SAVE SUBJECT
+========================= */
+
+async function saveSubjectInfo(){
+
+adminSubject.name=
+$("subName").value.trim()
+||
+adminSubject.name;
+
+
+adminSubject.icon=
+$("subIcon").value.trim()
+||
+"📚";
+
+
+try{
+
+await saveSite();
+
+renderAdminSubjects();
+
+renderEditor();
+
+adminMessage(
+"Subject saved.",
+true
+);
+
+}catch(e){
+
+adminMessage(
+e.message
+);
+
+}
+
+}
+
+
+/* =========================
+   ADD CHAPTER
+========================= */
+
+async function addTopic(){
+
+let name=
+$("newTopic").value.trim();
+
+
+if(!name)return;
+
+
+adminSubject.topics.push({
+
+id:uid(),
+
+name:name,
+
+videos:[]
+
+});
+
+
+try{
+
+await saveSite();
+
+renderEditor();
+
+adminMessage(
+"Chapter added.",
+true
+);
+
+}catch(e){
+
+adminMessage(
+e.message
+);
+
+}
+
+}
+
+
+/* =========================
+   DELETE CHAPTER
+========================= */
+
+async function removeTopic(id){
+
+if(!confirm(
+"Delete chapter and videos?"
+))return;
+
+
+adminSubject.topics=
+adminSubject.topics.filter(
+x=>x.id!==id
+);
+
+
+try{
+
+await saveSite();
+
+renderEditor();
+
+}catch(e){
+
+adminMessage(
+e.message
+);
+
+}
+
+}
+
+
+/* =========================
+   MANAGE CHAPTER
+========================= */
+
+function manageTopic(id){
+
+let topic=
+adminSubject.topics.find(
+x=>x.id===id
+);
+
+
+if(!topic)return;
+
+
+$("topicEditor").innerHTML=`
+
+<div class="card">
+
+<h3>
+${esc(topic.name)}
+</h3>
+
+
+<div class="field">
+
+<label>
+Chapter name
+</label>
+
+<input
+id="topicName"
+value="${esc(topic.name)}"
+>
+
+</div>
+
+
+<button
+class="btn secondary small"
+id="saveTopic"
+>
+Save Name
+</button>
+
+
+<hr>
+
+
+<h4>
+Videos
+</h4>
+
+
+<div class="list">
+
+${
+topic.videos.map(
+(v,i)=>`
+
+<div class="item">
+
+<span>
+${esc(v.title)}
+</span>
+
+<button
+class="btn danger small"
+data-video-delete="${i}"
+>
+Delete
+</button>
+
+</div>
+
+`).join("")
+
+||
+
+`<div class="empty">
+No videos.
+</div>`
+}
+
+</div>
+
+
+<hr>
+
+
+<h4>
+Add YouTube Video
+</h4>
+
+
+<div class="field">
+
+<label>
+Video title
+</label>
+
+<input
+id="videoName"
+placeholder="Example: Narration Part 1"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>
+YouTube URL
+</label>
+
+<input
+id="videoUrl"
+placeholder="https://youtube.com/watch?v=..."
+>
+
+</div>
+
+
+<button
+class="btn primary"
+id="addVideo"
+>
++ Add Video
+</button>
+
+
+</div>
+
+`;
+
+
+$("saveTopic").onclick=
+()=>saveTopic(id);
+
+
+$("addVideo").onclick=
+()=>addVideo(id);
+
+
+$("topicEditor")
+.querySelectorAll("[data-video-delete]")
+.forEach(button=>{
+
+button.onclick=()=>
+removeVideo(
+id,
+Number(
+button.dataset.videoDelete
+)
+);
+
+});
+
+}
+
+
+/* =========================
+   SAVE CHAPTER
+========================= */
+
+async function saveTopic(id){
+
+let topic=
+adminSubject.topics.find(
+x=>x.id===id
+);
+
+
+let name=
+$("topicName").value.trim();
+
+
+if(name)
+topic.name=name;
+
+
+try{
+
+await saveSite();
+
+renderEditor();
+
+manageTopic(id);
+
+}catch(e){
+
+adminMessage(
+e.message
+);
+
+}
+
+}
+
+
+/* =========================
+   ADD VIDEO
+========================= */
+
+async function addVideo(id){
+
+let topic=
+adminSubject.topics.find(
+x=>x.id===id
+);
+
+
+let title=
+$("videoName").value.trim();
+
+
+let url=
+$("videoUrl").value.trim();
+
+
+if(!title||!ytId(url)){
+
+alert(
+"Enter a video title and valid YouTube URL."
+);
+
+return;
+
+}
+
+
+topic.videos.push({
+
+id:uid(),
+
+title:title,
+
+url:url
+
+});
+
+
+try{
+
+await saveSite();
+
+renderEditor();
+
+manageTopic(id);
+
+adminMessage(
+"Video added.",
+true
+);
+
+}catch(e){
+
+adminMessage(
+e.message
+);
+
+}
+
+}
+
+
+/* =========================
+   DELETE VIDEO
+========================= */
+
+async function removeVideo(id,index){
+
+let topic=
+adminSubject.topics.find(
+x=>x.id===id
+);
+
+
+if(!topic)return;
+
+
+if(!confirm(
+"Delete this video?"
+))return;
+
+
+topic.videos.splice(
+index,
+1
+);
+
+
+try{
+
+await saveSite();
+
+renderEditor();
+
+manageTopic(id);
+
+}catch(e){
+
+adminMessage(
+e.message
+);
+
+}
+
+}
+
+
+/* =========================
+   STUDENT LIST
+========================= */
+
+$("studentsBtn").onclick=
+async()=>{
+
+let password=
+prompt(
+"Enter admin password:"
+);
+
+
+if(!password)return;
+
+
+let r=
+await sb.rpc(
+"admin_list_students",
+{
+p_password:password
+}
+);
+
+
+if(r.error){
+
+return adminMessage(
+r.error.message
+);
+
+}
+
+
+if(!r.data?.success){
+
+return adminMessage(
+"Wrong admin password."
+);
+
+}
+
+
+$("studentsPanel")
+.classList.remove("hidden");
+
+
+let students=
+Array.isArray(
+r.data.students
+)?
+r.data.students:
+[];
+
+
+$("students").innerHTML=
+students.map(s=>`
+
+<div class="item">
+
+<div>
+
+<b>
+${esc(s.name)}
+</b>
+
+<div class="muted">
+${esc(s.login_id)}
+</div>
+
+</div>
+
+
+<button
+class="btn secondary small"
+data-change="${esc(s.id)}"
+data-login="${esc(s.login_id)}"
+>
+Change password
+</button>
+
+</div>
+
+`).join("")
+
+||
+
+`<div class="empty">
+No students.
+</div>`;
+
+
+$("students")
+.querySelectorAll("[data-change]")
+.forEach(button=>{
+
+button.onclick=()=>
+changeStudentPassword(
+button.dataset.change,
+button.dataset.login
+);
+
+});
+
+};
+
+
+/* =========================
+   CHANGE STUDENT PASSWORD
+========================= */
+
+async function changeStudentPassword(
+id,
+login
+){
+
+let newPassword=
+prompt(
+"New password for "+login
+);
+
+
+if(!newPassword)return;
+
+
+if(newPassword.length<6){
+
+alert(
+"Minimum 6 characters."
+);
+
+return;
+
+}
+
+
+let adminPassword=
+prompt(
+"Admin password"
+);
+
+
+if(!adminPassword)return;
+
+
+let r=
+await sb.rpc(
+"admin_change_password",
+{
+p_admin_password:adminPassword,
+p_student_id:id,
+p_new_password:newPassword
+}
+);
+
+
+if(r.error){
+
+alert(
+r.error.message
+);
+
+return;
+
+}
+
+
+if(!r.data?.success){
+
+alert(
+r.data?.message||
+"Could not change password."
+);
+
+return;
+
+}
+
+
+alert(
+"Password changed successfully."
+);
+
+}
+
+
+/* =========================
+   REALTIME
+========================= */
+
+sb.channel("studyhub-live")
+
+.on(
+"postgres_changes",
+{
+event:"UPDATE",
+schema:"public",
+table:"site_data",
+filter:"id=eq.1"
+},
+payload=>{
+
+site=
+payload.new?.data||
+{
+subjects:[]
+};
+
+normalize();
+
+
+if(
+!$("studentApp")
+.classList.contains("hidden")
+){
+
+renderSubjects();
+
+}
+
+
+if(adminOpen){
+
+renderAdminSubjects();
+
+}
+
+}
+)
+
+.subscribe();
+
+
+/* =========================
+   START
+========================= */
+
+(async()=>{
+
+try{
+
+await loadSite();
+
+
+let user=
+JSON.parse(
+localStorage.getItem(
+"studyhub_user"
+)||
+"null"
+);
+
+
+if(user?.id){
+
+openStudent(user);
+
+}
+
+}catch(error){
+
+console.error(error);
+
+message(
+"Could not connect to Supabase: "+
+error.message
+);
+
+}
+
+})();
+
 </script>
+
 </body>
 </html>
