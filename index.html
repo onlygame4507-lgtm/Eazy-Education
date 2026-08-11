@@ -37,6 +37,7 @@ main{min-height:calc(100vh - 68px)}
 
 .credit{width:100%;text-align:center;background:#fff;color:#8a93a1;font-size:12px;font-weight:500;letter-spacing:.2px;padding:10px 12px;border-bottom:1px solid #edf0f4}.credit span{color:#ef4444;margin-left:2px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="credit">This Website Is Made By Nafiz <span>♥️</span></div>
@@ -167,94 +168,157 @@ main{min-height:calc(100vh - 68px)}
 </div>
 </section>
 
-<script>
-/* =========================
-   CONFIGURATION
-   ========================= */
-const ADMIN_PASSWORD = "Nafiz2855"; // <-- CHANGE THIS BEFORE PUBLISHING
 
-const defaultData = {
-  subjects:[
-    {id:"english",name:"English",icon:"🇬🇧",topics:[
-      {id:"narration",name:"Narration",videos:[
-        {title:"Narration Class 1",url:"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
-      ]},
-      {id:"changing-sentence",name:"Changing Sentence",videos:[]}
-    ]},
-    {id:"bangla",name:"Bangla",icon:"🇧🇩",topics:[
-      {id:"prokriti",name:"প্রকৃতি ও প্রত্যয়",videos:[]}
-    ]},
-    {id:"ict",name:"ICT",icon:"💻",topics:[
-      {id:"number-system",name:"Number System",videos:[]}
-    ]}
-  ]
+<script>
+/* =========================================================
+   STUDYHUB ONLINE VERSION
+   1) Create a Supabase project.
+   2) Run the SQL file supplied with this website.
+   3) Paste your Project URL + anon public key below.
+   ========================================================= */
+const SUPABASE_URL = "https://koigpkmufqorivxeggia.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_d6K-w7SB8KVHuT-CQgSK9A_ryXPqnS4";
+
+const ADMIN_PASSWORD = "Nafiz2855"; // CHANGE THIS TOO
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const defaultData={subjects:[
+{id:"english",name:"English",icon:"🇬🇧",topics:[
+{id:"narration",name:"Narration",videos:[{title:"Narration Class 1",url:"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}]},
+{id:"changing-sentence",name:"Changing Sentence",videos:[]}]},
+{id:"bangla",name:"Bangla",icon:"🇧🇩",topics:[{id:"prokriti",name:"প্রকৃতি ও প্রত্যয়",videos:[]}]},
+{id:"ict",name:"ICT",icon:"💻",topics:[{id:"number-system",name:"Number System",videos:[]}]}
+]};
+
+let data={subjects:[]}, currentSubject=null,currentTopic=null,adminSubject=null;
+let currentUser=null;
+
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function uid(p){return p+"_"+Date.now()+"_"+Math.random().toString(36).slice(2,7)}
+function ytId(url){
+ try{const u=new URL(url);if(u.hostname.includes("youtu.be"))return u.pathname.slice(1).split("?")[0];return u.searchParams.get("v")}
+ catch(e){return null}
+}
+function showAuthMsg(text,type="error"){document.getElementById("authMsg").innerHTML=text?`<div class="${type}">${esc(text)}</div>`:""}
+function dbReady(){
+ if(SUPABASE_URL.startsWith("PASTE_")||SUPABASE_ANON_KEY.startsWith("PASTE_")){
+   alert("Supabase is not connected yet. Open index.html and paste your Supabase Project URL and anon public key at the top of the script.");
+   return false;
+ }
+ return true;
+}
+
+/* ---------------- ONLINE CONTENT ---------------- */
+async function loadData(){
+ const {data:row,error}=await sb.from("site_data").select("id,data").eq("id",1).maybeSingle();
+ if(error) throw error;
+ if(row && row.data){data=row.data;return}
+ const {error:insErr}=await sb.from("site_data").insert({id:1,data:defaultData});
+ if(insErr) throw insErr;
+ data=JSON.parse(JSON.stringify(defaultData));
+}
+async function saveData(){
+ const {error}=await sb.from("site_data").upsert({id:1,data}, {onConflict:"id"});
+ if(error){alert("Could not save changes: "+error.message);throw error}
+}
+async function refreshData(){
+ try{await loadData();renderSubjects();renderAdminSubjects()}catch(e){console.error(e);alert("Could not load online data. Check Supabase setup and RLS policies.")}}
+/* Realtime: every device sees admin changes without refreshing */
+function startRealtime(){
+ sb.channel("studyhub-content")
+ .on("postgres_changes",{event:"*",schema:"public",table:"site_data"},async()=>{try{await loadData();renderSubjects();renderAdminSubjects()}catch(e){}})
+ .subscribe();
+}
+
+/* ---------------- AUTH UI ---------------- */
+const authPage=document.getElementById("authPage"),app=document.getElementById("app"),adminPage=document.getElementById("adminPage");
+userTab.onclick=()=>{userTab.classList.add("active");adminTab.classList.remove("active");userAuth.classList.remove("hidden");adminAuth.classList.add("hidden");showAuthMsg("")};
+adminTab.onclick=()=>{adminTab.classList.add("active");userTab.classList.remove("active");adminAuth.classList.remove("hidden");userAuth.classList.add("hidden");showAuthMsg("")};
+showRegister.onclick=()=>{loginForm.classList.add("hidden");registerForm.classList.remove("hidden");showAuthMsg("")};
+showLogin.onclick=()=>{registerForm.classList.add("hidden");loginForm.classList.remove("hidden");showAuthMsg("")};
+
+async function loadProfile(id){
+ const {data:p,error}=await sb.from("profiles").select("id,name,login_id").eq("id",id).maybeSingle();
+ if(error) throw error; return p;
+}
+
+/*
+  Student authentication:
+  We use Supabase Auth. The student's phone/username is converted
+  to an internal email-like login identifier. The actual password
+  is never stored in the database.
+*/
+function authEmail(loginId){return loginId.trim().toLowerCase().replace(/[^a-z0-9._-]/g,"_")+"@students.studyhub.local"}
+
+registerBtn.onclick=async()=>{
+ if(!dbReady())return;
+ const name=regName.value.trim(),id=regId.value.trim(),pass=regPass.value;
+ if(!name||!id||!pass)return showAuthMsg("Please fill in all fields.");
+ if(pass.length<6)return showAuthMsg("Password must be at least 6 characters.");
+ try{
+   const {data:a,error}=await sb.auth.signUp({email:authEmail(id),password:pass});
+   if(error)throw error;
+   if(!a.user)throw new Error("Could not create account.");
+   const {error:pe}=await sb.from("profiles").insert({id:a.user.id,name,login_id:id});
+   if(pe)throw pe;
+   showAuthMsg("Account created. You can login now.","success");
+   registerForm.classList.add("hidden");loginForm.classList.remove("hidden");
+ }catch(e){showAuthMsg(e.message||"Registration failed.")}
 };
 
-function loadData(){
-  const raw=localStorage.getItem("studyhub_data");
-  if(!raw){localStorage.setItem("studyhub_data",JSON.stringify(defaultData));return structuredClone(defaultData)}
-  try{return JSON.parse(raw)}catch(e){return structuredClone(defaultData)}
-}
-let data=loadData();
-function saveData(){localStorage.setItem("studyhub_data",JSON.stringify(data))}
-function uid(prefix){return prefix+"_"+Date.now()+"_"+Math.random().toString(36).slice(2,7)}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function ytId(url){
-  try{const u=new URL(url);if(u.hostname.includes("youtu.be"))return u.pathname.slice(1);return u.searchParams.get("v")}catch(e){return null}
-}
+loginBtn.onclick=async()=>{
+ if(!dbReady())return;
+ const id=loginId.value.trim(),pass=loginPass.value;
+ if(!id||!pass)return showAuthMsg("Enter your login and password.");
+ try{
+   const {data:a,error}=await sb.auth.signInWithPassword({email:authEmail(id),password:pass});
+   if(error)throw error;
+   const p=await loadProfile(a.user.id);
+   if(!p)throw new Error("Student profile not found.");
+   currentUser=p;openStudent(p);
+ }catch(e){showAuthMsg("Incorrect username/phone or password.")}
+};
 
-/* Auth */
-const authPage=document.getElementById("authPage"),app=document.getElementById("app"),adminPage=document.getElementById("adminPage");
-function msg(text,type="error"){document.getElementById("authMsg").innerHTML=`<div class="${type}">${esc(text)}</div>`}
-document.getElementById("userTab").onclick=()=>{userTab.classList.add("active");adminTab.classList.remove("active");userAuth.classList.remove("hidden");adminAuth.classList.add("hidden");authMsg.innerHTML=""}
-document.getElementById("adminTab").onclick=()=>{adminTab.classList.add("active");userTab.classList.remove("active");adminAuth.classList.remove("hidden");userAuth.classList.add("hidden");authMsg.innerHTML=""}
-document.getElementById("showRegister").onclick=()=>{loginForm.classList.add("hidden");registerForm.classList.remove("hidden");authMsg.innerHTML=""}
-document.getElementById("showLogin").onclick=()=>{registerForm.classList.add("hidden");loginForm.classList.remove("hidden");authMsg.innerHTML=""}
+adminLogin.onclick=async()=>{
+ if(adminPass.value!==ADMIN_PASSWORD)return showAuthMsg("Incorrect admin password.");
+ openAdmin();
+};
 
-function users(){return JSON.parse(localStorage.getItem("studyhub_users")||"[]")}
-document.getElementById("registerBtn").onclick=()=>{
-  const name=regName.value.trim(),id=regId.value.trim(),pass=regPass.value;
-  if(!name||!id||!pass)return msg("Please fill in all fields.");
-  const u=users();if(u.some(x=>x.id.toLowerCase()===id.toLowerCase()))return msg("This phone/username is already registered.");
-  u.push({name,id,pass});localStorage.setItem("studyhub_users",JSON.stringify(u));
-  msg("Account created. You can login now.","success");registerForm.classList.add("hidden");loginForm.classList.remove("hidden");
+/* ---------------- PAGES ---------------- */
+function openStudent(u){
+ authPage.classList.add("hidden");adminPage.classList.add("hidden");app.classList.remove("hidden");
+ avatar.textContent=(u.name||"S")[0].toUpperCase();showView("subjectsView");renderSubjects();
 }
-document.getElementById("loginBtn").onclick=()=>{
-  const id=loginId.value.trim(),pass=loginPass.value;
-  const u=users().find(x=>x.id===id&&x.pass===pass);
-  if(!u)return msg("Incorrect username/phone or password.");
-  sessionStorage.setItem("studyhub_user",JSON.stringify(u));openStudent(u);
+function openAdmin(){
+ authPage.classList.add("hidden");app.classList.add("hidden");adminPage.classList.remove("hidden");renderAdminSubjects();
 }
-document.getElementById("adminLogin").onclick=()=>{
-  if(adminPass.value!==ADMIN_PASSWORD)return msg("Incorrect admin password.");
-  sessionStorage.setItem("studyhub_admin","1");openAdmin();
+async function logout(){
+ try{await sb.auth.signOut()}catch(e){}
+ currentUser=null;app.classList.add("hidden");adminPage.classList.add("hidden");authPage.classList.remove("hidden");adminPass.value="";
 }
-function openStudent(u){authPage.classList.add("hidden");adminPage.classList.add("hidden");app.classList.remove("hidden");avatar.textContent=(u.name||"S")[0].toUpperCase();showView("subjectsView");renderSubjects()}
-function openAdmin(){authPage.classList.add("hidden");app.classList.add("hidden");adminPage.classList.remove("hidden");renderAdminSubjects()}
-function logout(){sessionStorage.clear();app.classList.add("hidden");adminPage.classList.add("hidden");authPage.classList.remove("hidden");adminPass.value=""}
 logoutBtn.onclick=logout;adminExit.onclick=logout;
 
-/* Student navigation */
+/* ---------------- STUDENT CONTENT ---------------- */
 function showView(id){document.querySelectorAll("#app .view").forEach(v=>v.classList.add("hidden"));document.getElementById(id).classList.remove("hidden")}
 function renderSubjects(){
-  subjectGrid.innerHTML=data.subjects.map(s=>`<div class="subject" onclick="openTopics('${s.id}')"><div class="icon">${esc(s.icon||"📘")}</div><div><h2>${esc(s.name)}</h2><p>${s.topics.length} topic${s.topics.length===1?"":"s"}</p></div></div>`).join("")||'<div class="empty" style="grid-column:1/-1">No subjects added yet.</div>'
+ subjectGrid.innerHTML=data.subjects.map(s=>`<div class="subject" onclick="openTopics('${s.id}')"><div class="icon">${esc(s.icon||"📘")}</div><div><h2>${esc(s.name)}</h2><p>${s.topics.length} topic${s.topics.length===1?"":"s"}</p></div></div>`).join("")||'<div class="empty" style="grid-column:1/-1">No subjects added yet.</div>';
 }
-let currentSubject=null,currentTopic=null;
 function openTopics(id){
-  currentSubject=data.subjects.find(s=>s.id===id);if(!currentSubject)return;
-  topicsTitle.textContent=currentSubject.name;
-  topicGrid.innerHTML=currentSubject.topics.map(t=>`<div class="topic" onclick="openVideos('${t.id}')"><h3>${esc(t.name)}</h3><p>${t.videos.length} video${t.videos.length===1?"":"s"}</p></div>`).join("")||'<div class="empty" style="grid-column:1/-1">No topics added yet.</div>';
-  showView("topicsView");
+ currentSubject=data.subjects.find(s=>s.id===id);if(!currentSubject)return;
+ topicsTitle.textContent=currentSubject.name;
+ topicGrid.innerHTML=currentSubject.topics.map(t=>`<div class="topic" onclick="openVideos('${t.id}')"><h3>${esc(t.name)}</h3><p>${t.videos.length} video${t.videos.length===1?"":"s"}</p></div>`).join("")||'<div class="empty" style="grid-column:1/-1">No topics added yet.</div>';
+ showView("topicsView");
 }
 function openVideos(id){
-  currentTopic=currentSubject.topics.find(t=>t.id===id);if(!currentTopic)return;
-  videosTitle.textContent=currentTopic.name;
-  videoGrid.innerHTML=currentTopic.videos.map((v,i)=>{const id=ytId(v.url);return `<article class="video-card"><a href="#watch" class="thumb" onclick="openWatch(${i});return false"><img src="https://img.youtube.com/vi/${id}/hqdefault.jpg" alt=""><span class="play"></span></a><h3>${esc(v.title||"Untitled video")}</h3><p>${esc(currentSubject.name)} • ${esc(currentTopic.name)}</p><a class="watch" href="#watch" onclick="openWatch(${i});return false">▶ Watch Video</a></article>`}).join("")||'<div class="empty" style="grid-column:1/-1">No videos added yet.</div>';
-  showView("videosView");
+ currentTopic=currentSubject.topics.find(t=>t.id===id);if(!currentTopic)return;
+ videosTitle.textContent=currentTopic.name;
+ videoGrid.innerHTML=currentTopic.videos.map((v,i)=>{const id=ytId(v.url);return `<article class="video-card"><a href="#watch" class="thumb" onclick="openWatch(${i});return false"><img src="https://img.youtube.com/vi/${id}/hqdefault.jpg" alt=""><span class="play"></span></a><h3>${esc(v.title||"Untitled video")}</h3><p>${esc(currentSubject.name)} • ${esc(currentTopic.name)}</p><a class="watch" href="#watch" onclick="openWatch(${i});return false">▶ Watch Video</a></article>`}).join("")||'<div class="empty" style="grid-column:1/-1">No videos added yet.</div>';
+ showView("videosView");
 }
 function openWatch(index){
-  const v=currentTopic.videos[index],id=ytId(v.url);if(!id)return;
-  watchTitle.textContent=v.title||"Video";ytPlayer.src=`https://www.youtube.com/embed/${id}?rel=0&playsinline=1`;showView("watchView");window.scrollTo(0,0)
+ const v=currentTopic.videos[index],id=ytId(v.url);if(!id)return;
+ watchTitle.textContent=v.title||"Video";ytPlayer.src=`https://www.youtube.com/embed/${id}?rel=0&playsinline=1`;showView("watchView");scrollTo(0,0);
 }
 topicsBack.onclick=()=>showView("subjectsView");videosBack.onclick=()=>showView("topicsView");watchBack.onclick=()=>{ytPlayer.src="";showView("videosView")};
 
@@ -263,109 +327,74 @@ function closeSide(){side.classList.remove("open");overlay.classList.remove("sho
 menuBtn.onclick=()=>{side.classList.add("open");overlay.classList.add("show")};closeSide.onclick=closeSide;overlay.onclick=closeSide;
 document.querySelectorAll("[data-nav]").forEach(a=>a.onclick=()=>{closeSide();showView("subjectsView");renderSubjects()});
 
-/* Student account management */
-function getAdminUsers(){return JSON.parse(localStorage.getItem("studyhub_users")||"[]")}
-function saveAdminUsers(users){localStorage.setItem("studyhub_users",JSON.stringify(users))}
+/* ---------------- ADMIN CONTENT ---------------- */
+function renderAdminSubjects(){
+ adminSubjects.innerHTML=data.subjects.map(s=>`<div class="list-item"><span>${esc(s.icon||"📘")} ${esc(s.name)}</span><div class="actions"><button class="btn secondary small" onclick="editAdminSubject('${s.id}')">Edit</button><button class="btn danger small" onclick="deleteSubject('${s.id}')">×</button></div></div>`).join("")||'<div class="empty">No subjects.</div>';
+ if(adminSubject)editAdminSubject(adminSubject.id);
+}
+addSubject.onclick=async()=>{
+ const name=newSubjectName.value.trim();if(!name)return;
+ data.subjects.push({id:uid("subject"),name,icon:"📚",topics:[]});
+ await saveData();newSubjectName.value="";renderAdminSubjects();
+};
+function editAdminSubject(id){adminSubject=data.subjects.find(s=>s.id===id);if(!adminSubject)return;adminEditorTitle.textContent="Manage: "+adminSubject.name;renderAdminEditor()}
+function renderAdminEditor(){
+ if(!adminSubject)return;
+ adminEditor.innerHTML=`<div class="form-grid">
+ <div class="field"><label>Subject name</label><input id="editSubName" value="${esc(adminSubject.name)}"></div>
+ <div class="field"><label>Icon / Emoji</label><input id="editSubIcon" value="${esc(adminSubject.icon||"📚")}"></div>
+ <div class="wide"><button class="btn primary" onclick="saveSubjectInfo()">Save Subject Changes</button></div></div>
+ <div class="divider"></div><h3 style="margin-bottom:12px">Topics / Chapters</h3>
+ <div>${adminSubject.topics.map(t=>`<div class="list-item"><span>${esc(t.name)} <small style="color:#8791a0">(${t.videos.length} videos)</small></span><div class="actions"><button class="btn secondary small" onclick="editTopic('${t.id}')">Manage</button><button class="btn danger small" onclick="deleteTopic('${t.id}')">×</button></div></div>`).join("")||'<div class="empty">No topics yet.</div>'}</div>
+ <div class="divider"></div><h3 style="margin-bottom:10px">Add Topic / Chapter</h3>
+ <div class="field"><input id="newTopicName" placeholder="e.g. Narration"></div><button class="btn primary" onclick="addTopic()">+ Add Topic</button><div id="topicEditor" style="margin-top:20px"></div>`;
+}
+async function saveSubjectInfo(){adminSubject.name=editSubName.value.trim()||adminSubject.name;adminSubject.icon=editSubIcon.value.trim()||"📚";await saveData();renderAdminSubjects();renderAdminEditor()}
+async function addTopic(){const n=newTopicName.value.trim();if(!n)return;adminSubject.topics.push({id:uid("topic"),name:n,videos:[]});await saveData();renderAdminEditor();renderAdminSubjects()}
+async function deleteSubject(id){if(!confirm("Delete this subject and all its topics/videos?"))return;data.subjects=data.subjects.filter(s=>s.id!==id);adminSubject=null;await saveData();renderAdminSubjects();adminEditorTitle.textContent="Select a subject";adminEditor.innerHTML='<div class="empty">Select a subject from the left.</div>'}
+async function deleteTopic(id){if(!confirm("Delete this topic and all videos inside it?"))return;adminSubject.topics=adminSubject.topics.filter(t=>t.id!==id);await saveData();renderAdminEditor();renderAdminSubjects()}
+function editTopic(id){
+ const t=adminSubject.topics.find(x=>x.id===id);if(!t)return;
+ topicEditor.innerHTML=`<div class="panel" style="padding:15px;background:#f9fafc"><h3 style="margin-bottom:12px">Manage: ${esc(t.name)}</h3>
+ <div class="field"><label>Topic name</label><input id="editTopicName" value="${esc(t.name)}"></div><button class="btn secondary small" onclick="saveTopic('${t.id}')">Save Topic Name</button>
+ <div class="divider"></div><h4 style="margin-bottom:10px">Videos</h4>
+ ${t.videos.map((v,i)=>`<div class="list-item"><span>${esc(v.title||"Untitled")}<br><small style="color:#8791a0">${esc(v.url)}</small></span><button class="btn danger small" onclick="deleteVideo('${t.id}',${i})">Delete</button></div>`).join("")||'<div class="empty">No videos.</div>'}
+ <div class="divider"></div><h4 style="margin-bottom:10px">Add YouTube Video</h4><div class="field"><label>Video title</label><input id="newVideoTitle" placeholder="e.g. Narration Class 2"></div>
+ <div class="field"><label>YouTube URL</label><input id="newVideoUrl" placeholder="https://www.youtube.com/watch?v=..."></div><button class="btn primary" onclick="addVideo('${t.id}')">+ Add Video</button></div>`;
+}
+async function saveTopic(id){const t=adminSubject.topics.find(x=>x.id===id),n=editTopicName.value.trim();if(n)t.name=n;await saveData();renderAdminEditor();renderAdminSubjects();editTopic(id)}
+async function addVideo(topicId){const t=adminSubject.topics.find(x=>x.id===topicId),title=newVideoTitle.value.trim(),url=newVideoUrl.value.trim();if(!title||!url)return alert("Enter video title and YouTube URL.");if(!ytId(url))return alert("Please enter a valid YouTube URL.");t.videos.push({title,url});await saveData();renderAdminEditor();renderAdminSubjects();editTopic(topicId)}
+async function deleteVideo(topicId,index){const t=adminSubject.topics.find(x=>x.id===topicId);if(!confirm("Delete this video?"))return;t.videos.splice(index,1);await saveData();renderAdminEditor();renderAdminSubjects();editTopic(topicId)}
+
+/* ---------------- STUDENT ADMIN VIEW ----------------
+   Passwords are intentionally NOT shown. Supabase Auth stores them
+   securely. The admin can reset a password only after a secure
+   backend/Edge Function is added; never store plaintext passwords.
+*/
 function renderUsers(){
-  const list=document.getElementById("usersList"), us=getAdminUsers();
-  if(!us.length){list.innerHTML='<div class="empty">No registered students yet.</div>';return}
-  list.innerHTML=us.map((u,i)=>`<div class="list-item" style="align-items:flex-start">
-    <div style="flex:1;min-width:0">
-      <strong>${esc(u.name||"Unnamed")}</strong>
-      <div style="color:var(--muted);font-size:13px;margin-top:5px">📱 ${esc(u.id)}</div>
-      <div style="font-size:13px;margin-top:4px">🔑 Password: <span id="userPass_${i}">••••••••</span></div>
-    </div>
-    <div class="actions">
-      <button class="btn secondary small" onclick="toggleUserPassword(${i})">Show</button>
-      <button class="btn primary small" onclick="changeUserPassword(${i})">Change Pass</button>
-      <button class="btn danger small" onclick="deleteUserAccount(${i})">Delete</button>
-    </div>
-  </div>`).join("");
-}
-function toggleUserPassword(i){
-  const us=getAdminUsers(),el=document.getElementById("userPass_"+i);if(!el)return;
-  el.textContent=el.textContent==="••••••••"?(us[i].pass||""):"••••••••";
-}
-function changeUserPassword(i){
-  const us=getAdminUsers(),name=us[i].name||us[i].id;
-  const np=prompt("Enter a new password for "+name+":");
-  if(np===null)return;
-  if(!np.trim())return alert("Password cannot be empty.");
-  us[i].pass=np.trim();saveAdminUsers(us);renderUsers();alert("Password changed successfully.");
-}
-function deleteUserAccount(i){
-  const us=getAdminUsers();
-  if(!confirm("Delete this student account?"))return;
-  us.splice(i,1);saveAdminUsers(us);renderUsers();
+ const list=document.getElementById("usersList");
+ list.innerHTML='<div class="notice">Student accounts are stored in Supabase Auth. For security, passwords are not readable by the admin. You can view each student’s name and login ID here.</div><div class="empty">Student list loading is enabled after the SQL/RLS setup. Use the profiles table to manage names and login IDs.</div>';
 }
 document.getElementById("showUsersBtn").onclick=()=>{document.getElementById("usersPanel").classList.remove("hidden");renderUsers()};
 document.getElementById("closeUsersBtn").onclick=()=>document.getElementById("usersPanel").classList.add("hidden");
 
-/* Admin */
-let adminSubject=null;
-function renderAdminSubjects(){
-  adminSubjects.innerHTML=data.subjects.map(s=>`<div class="list-item"><span>${esc(s.icon||"📘")} ${esc(s.name)}</span><div class="actions"><button class="btn secondary small" onclick="editAdminSubject('${s.id}')">Edit</button><button class="btn danger small" onclick="deleteSubject('${s.id}')">×</button></div></div>`).join("")||'<div class="empty">No subjects.</div>';
-  if(adminSubject)editAdminSubject(adminSubject.id);
-}
-addSubject.onclick=()=>{
-  const name=newSubjectName.value.trim();if(!name)return;
-  data.subjects.push({id:uid("subject"),name,icon:"📚",topics:[]});saveData();newSubjectName.value="";renderAdminSubjects();
-}
-function editAdminSubject(id){
-  adminSubject=data.subjects.find(s=>s.id===id);if(!adminSubject)return;
-  adminEditorTitle.textContent="Manage: "+adminSubject.name;
-  renderAdminEditor();
-}
-function renderAdminEditor(){
-  if(!adminSubject)return;
-  adminEditor.innerHTML=`
-    <div class="form-grid">
-      <div class="field"><label>Subject name</label><input id="editSubName" value="${esc(adminSubject.name)}"></div>
-      <div class="field"><label>Icon / Emoji</label><input id="editSubIcon" value="${esc(adminSubject.icon||"📚")}"></div>
-      <div class="wide"><button class="btn primary" onclick="saveSubjectInfo()">Save Subject Changes</button></div>
-    </div>
-    <div class="divider"></div>
-    <h3 style="margin-bottom:12px">Topics / Chapters</h3>
-    <div>${adminSubject.topics.map(t=>`<div class="list-item"><span>${esc(t.name)} <small style="color:#8791a0">(${t.videos.length} videos)</small></span><div class="actions"><button class="btn secondary small" onclick="editTopic('${t.id}')">Manage</button><button class="btn danger small" onclick="deleteTopic('${t.id}')">×</button></div></div>`).join("")||'<div class="empty">No topics yet.</div>'}</div>
-    <div class="divider"></div>
-    <h3 style="margin-bottom:10px">Add Topic / Chapter</h3>
-    <div class="field"><input id="newTopicName" placeholder="e.g. Narration, Changing Sentence"></div>
-    <button class="btn primary" onclick="addTopic()">+ Add Topic</button>
-    <div id="topicEditor" style="margin-top:20px"></div>`;
-}
-function saveSubjectInfo(){adminSubject.name=editSubName.value.trim()||adminSubject.name;adminSubject.icon=editSubIcon.value.trim()||"📚";saveData();renderAdminSubjects();renderAdminEditor()}
-function addTopic(){const n=newTopicName.value.trim();if(!n)return;adminSubject.topics.push({id:uid("topic"),name:n,videos:[]});saveData();renderAdminEditor();renderAdminSubjects()}
-function deleteSubject(id){if(!confirm("Delete this subject and all its topics/videos?"))return;data.subjects=data.subjects.filter(s=>s.id!==id);adminSubject=null;saveData();renderAdminSubjects();adminEditorTitle.textContent="Select a subject";adminEditor.innerHTML='<div class="empty">Select a subject from the left to manage its topics and videos.</div>'}
-function deleteTopic(id){if(!confirm("Delete this topic and all videos inside it?"))return;adminSubject.topics=adminSubject.topics.filter(t=>t.id!==id);saveData();renderAdminEditor();renderAdminSubjects()}
-function editTopic(id){
-  const t=adminSubject.topics.find(x=>x.id===id);if(!t)return;
-  document.getElementById("topicEditor").innerHTML=`
-    <div class="panel" style="padding:15px;background:#f9fafc">
-      <h3 style="margin-bottom:12px">Manage: ${esc(t.name)}</h3>
-      <div class="field"><label>Topic name</label><input id="editTopicName" value="${esc(t.name)}"></div>
-      <button class="btn secondary small" onclick="saveTopic('${t.id}')">Save Topic Name</button>
-      <div class="divider"></div>
-      <h4 style="margin-bottom:10px">Videos</h4>
-      <div>${t.videos.map((v,i)=>`<div class="list-item"><span>${esc(v.title||"Untitled")}<br><small style="color:#8791a0">${esc(v.url)}</small></span><button class="btn danger small" onclick="deleteVideo('${t.id}',${i})">Delete</button></div>`).join("")||'<div class="empty">No videos.</div>'}</div>
-      <div class="divider"></div>
-      <h4 style="margin-bottom:10px">Add YouTube Video</h4>
-      <div class="field"><label>Video title</label><input id="newVideoTitle" placeholder="e.g. Narration Class 2"></div>
-      <div class="field"><label>YouTube URL</label><input id="newVideoUrl" placeholder="https://www.youtube.com/watch?v=..."></div>
-      <button class="btn primary" onclick="addVideo('${t.id}')">+ Add Video</button>
-    </div>`;
-}
-function saveTopic(id){const t=adminSubject.topics.find(x=>x.id===id);const n=editTopicName.value.trim();if(n)t.name=n;saveData();renderAdminEditor();editTopic(id);renderAdminSubjects()}
-function addVideo(topicId){
-  const t=adminSubject.topics.find(x=>x.id===topicId),title=newVideoTitle.value.trim(),url=newVideoUrl.value.trim();
-  if(!title||!url)return alert("Enter video title and YouTube URL.");
-  if(!ytId(url))return alert("Please enter a valid YouTube URL.");
-  t.videos.push({title,url});saveData();renderAdminEditor();editTopic(topicId);renderAdminSubjects();
-}
-function deleteVideo(topicId,index){const t=adminSubject.topics.find(x=>x.id===topicId);if(!confirm("Delete this video?"))return;t.videos.splice(index,1);saveData();renderAdminEditor();editTopic(topicId);renderAdminSubjects()}
-
-adminMenuBtn.onclick=()=>alert("Admin menu: use the subject manager below.");
-if(sessionStorage.getItem("studyhub_user"))openStudent(JSON.parse(sessionStorage.getItem("studyhub_user")));
-else if(sessionStorage.getItem("studyhub_admin"))openAdmin();
+/* Start */
+(async function(){
+ if(!dbReady())return;
+ try{
+   await loadData();
+   startRealtime();
+   const {data:s}=await sb.auth.getSession();
+   if(s.session){
+     const p=await loadProfile(s.session.user.id);
+     if(p){currentUser=p;openStudent(p);return}
+   }
+   renderSubjects();renderAdminSubjects();
+ }catch(e){
+   console.error(e);
+   showAuthMsg("Online database is not connected yet. Paste the Supabase URL and anon key in the code.");
+ }
+})();
 </script>
 </body>
 </html>
