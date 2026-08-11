@@ -1,391 +1,103 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>StudyHub</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--primary:#2563eb;--primary2:#4f46e5;--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#687386;--line:#e5e9f0;--danger:#dc2626;--green:#059669}
-body{font-family:Inter,system-ui,-apple-system,"Segoe UI","Noto Sans Bengali",sans-serif;background:var(--bg);color:var(--text)}
-button,input{font:inherit}button{cursor:pointer}
-.hidden{display:none!important}
-.top{height:68px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;gap:15px;position:sticky;top:0;z-index:30}
-.menu{width:42px;height:42px;border:0;background:transparent;display:flex;flex-direction:column;justify-content:center;gap:5px}.menu i{width:25px;height:3px;background:#475569;border-radius:4px}
-.logo{font-size:22px;font-weight:850}.logo b{color:var(--primary)}
-.avatar{margin-left:auto;width:39px;height:39px;border-radius:50%;background:#eaf1ff;display:grid;place-items:center;font-weight:800;color:var(--primary)}
-.side{position:fixed;z-index:100;top:0;left:-285px;width:270px;height:100vh;background:#fff;box-shadow:10px 0 35px #0002;padding:20px;transition:.25s}.side.open{left:0}
-.side-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}.side a,.side button{display:block;width:100%;text-align:left;text-decoration:none;border:0;background:transparent;color:#273244;padding:13px 12px;border-radius:10px;font-weight:650}.side a:hover,.side button:hover{background:#eef4ff;color:var(--primary)}
-.overlay{display:none;position:fixed;inset:0;background:#0005;z-index:90}.overlay.show{display:block}
-main{min-height:calc(100vh - 68px)}
-.container{max-width:1100px;margin:auto;padding:28px 20px 60px}
-.auth{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#eef4ff,#f7f5ff)}
-.auth-card{width:min(430px,100%);background:#fff;padding:30px;border-radius:22px;box-shadow:0 20px 60px #26334d16}.auth-card h1{font-size:28px;margin-bottom:8px}.auth-card>p{color:var(--muted);margin-bottom:22px;line-height:1.5}
-.tabs{display:flex;gap:5px;background:#f2f4f8;padding:4px;border-radius:11px;margin-bottom:20px}.tab{flex:1;border:0;padding:10px;border-radius:8px;background:transparent;font-weight:700;color:var(--muted)}.tab.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px #0000000c}
-.field{margin-bottom:13px}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}.field input,.field select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:10px;outline:0;background:#fff}.field input:focus,.field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px #2563eb18}
-.btn{border:0;border-radius:10px;padding:12px 16px;font-weight:750}.primary{background:var(--primary);color:#fff}.secondary{background:#eef2f7;color:#334155}.danger{background:#fee2e2;color:#b91c1c}.green{background:#dff7ee;color:#047857}.full{width:100%}.small{padding:8px 10px;font-size:12px}
-.error{background:#fee2e2;color:#b91c1c;border-radius:10px;padding:10px;font-size:13px;margin-bottom:13px}.success{background:#dcfce7;color:#166534;border-radius:10px;padding:10px;font-size:13px;margin-bottom:13px}
-.hero{padding:22px 0 30px}.hero h1{font-size:clamp(30px,5vw,48px);letter-spacing:-1.5px}.hero p{color:var(--muted);margin-top:8px}
-.subject-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.subject{background:#fff;border:1px solid var(--line);border-radius:18px;padding:25px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:.2s;box-shadow:0 5px 20px #18202b08}.subject:hover{transform:translateY(-3px);box-shadow:0 12px 30px #18202b12}.subject .icon{font-size:34px}.subject h2{margin-top:15px}.subject p{color:var(--muted);font-size:13px;margin-top:4px}
-.back{border:0;background:transparent;color:var(--primary);font-weight:700;padding:0;margin-bottom:18px}.page-title{font-size:32px;margin-bottom:20px}.topic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}.topic{background:#fff;border:1px solid var(--line);padding:20px;border-radius:15px;cursor:pointer}.topic:hover{border-color:#b9ccff}.topic h3{font-size:18px}.topic p{font-size:13px;color:var(--muted);margin-top:5px}
-.video-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}.video-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:12px;overflow:hidden}.thumb{aspect-ratio:16/9;background:#ddd;border-radius:11px;overflow:hidden;position:relative}.thumb img{width:100%;height:100%;object-fit:cover}.play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;background:#ffffffed;display:grid;place-items:center}.play:after{content:"";margin-left:4px;border-left:18px solid #ef4444;border-top:11px solid transparent;border-bottom:11px solid transparent}.video-card h3{font-size:17px;margin:13px 3px 4px}.video-card p{font-size:12px;color:var(--muted);margin:0 3px 10px}.watch{display:block;text-align:center;background:#111827;color:#fff;text-decoration:none;padding:10px;border-radius:9px;font-size:13px;font-weight:700}
-.player-box{background:#fff;border-radius:20px;padding:18px;box-shadow:0 8px 30px #0000000b}.player{aspect-ratio:16/9;background:#000;border-radius:13px;overflow:hidden}.player iframe{width:100%;height:100%;border:0}.player h1{font-size:25px;margin-top:17px}
-.admin-title{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}.admin-title h1{font-size:30px}.admin-grid{display:grid;grid-template-columns:270px 1fr;gap:20px}.panel{background:#fff;border:1px solid var(--line);border-radius:17px;padding:18px}.panel h2{font-size:18px;margin-bottom:14px}.list-item{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--line);border-radius:11px;padding:10px;margin-bottom:8px}.list-item span{font-weight:650;font-size:14px;overflow:hidden;text-overflow:ellipsis}.actions{display:flex;gap:5px;flex-shrink:0}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-grid .wide{grid-column:1/-1}.divider{height:1px;background:var(--line);margin:20px 0}.empty{text-align:center;padding:35px;color:var(--muted);border:1px dashed var(--line);border-radius:13px}
-.notice{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;padding:12px;border-radius:11px;font-size:13px;line-height:1.5;margin-bottom:18px}
-@media(max-width:800px){.subject-grid,.topic-grid{grid-template-columns:1fr 1fr}.admin-grid{grid-template-columns:1fr}.video-grid{grid-template-columns:1fr}}
-@media(max-width:520px){.subject-grid,.topic-grid{grid-template-columns:1fr}.container{padding:22px 14px 45px}.form-grid{grid-template-columns:1fr}.auth-card{padding:23px}}
-
-.credit{width:100%;text-align:center;background:#fff;color:#8a93a1;font-size:12px;font-weight:500;letter-spacing:.2px;padding:10px 12px;border-bottom:1px solid #edf0f4}.credit span{color:#ef4444;margin-left:2px}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI","Noto Sans Bengali",sans-serif;background:#f5f7fb;color:#172033}
+button,input{font:inherit}.hidden{display:none!important}.credit{text-align:center;background:#fff;color:#8a93a1;font-size:12px;padding:10px;border-bottom:1px solid #edf0f4}.credit span{color:#ef4444}
+.top{height:68px;background:#fff;border-bottom:1px solid #e5e9f0;display:flex;align-items:center;padding:0 20px;gap:15px;position:sticky;top:0;z-index:30}.menu{border:0;background:none;display:grid;gap:5px;padding:10px}.menu i{display:block;width:25px;height:3px;background:#475569;border-radius:4px}.logo{font-size:22px;font-weight:850}.logo b{color:#2563eb}.avatar{margin-left:auto;width:39px;height:39px;border-radius:50%;background:#eaf1ff;display:grid;place-items:center;font-weight:800;color:#2563eb}
+.container{max-width:1100px;margin:auto;padding:28px 20px 60px}.auth{min-height:calc(100vh - 35px);display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#eef4ff,#f7f5ff)}.auth-card{width:min(430px,100%);background:#fff;padding:30px;border-radius:22px;box-shadow:0 20px 60px #26334d16}.tabs{display:flex;gap:5px;background:#f2f4f8;padding:4px;border-radius:11px;margin:20px 0}.tab{flex:1;border:0;padding:10px;border-radius:8px;background:none;font-weight:700;color:#687386}.tab.active{background:#fff;color:#2563eb}.field{margin-bottom:13px}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}.field input{width:100%;padding:12px;border:1px solid #e5e9f0;border-radius:10px;outline:0}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:750;cursor:pointer}.primary{background:#2563eb;color:#fff}.secondary{background:#eef2f7;color:#334155}.danger{background:#fee2e2;color:#b91c1c}.full{width:100%}.msg{padding:10px;border-radius:10px;font-size:13px;margin-bottom:13px}.error{background:#fee2e2;color:#991b1b}.success{background:#dcfce7;color:#166534}.hero{padding:22px 0 30px}.hero h1{font-size:clamp(30px,5vw,48px);margin:0}.muted{color:#687386}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.card{background:#fff;border:1px solid #e5e9f0;border-radius:17px;padding:18px}.click{cursor:pointer}.card:hover{border-color:#b9ccff}.back{border:0;background:none;color:#2563eb;font-weight:700;padding:0;margin-bottom:18px;cursor:pointer}.thumb{aspect-ratio:16/9;background:#ddd;border-radius:11px;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:cover}.watch{margin-top:10px}.player{background:#000;border-radius:14px;overflow:hidden}.player iframe{display:block;width:100%;aspect-ratio:16/9;border:0}.side{position:fixed;z-index:100;top:0;left:-285px;width:270px;height:100vh;background:#fff;box-shadow:10px 0 35px #0002;padding:20px;transition:.2s}.side.open{left:0}.side button{display:block;width:100%;text-align:left;border:0;background:none;padding:13px;border-radius:10px;font-weight:700}.overlay{display:none;position:fixed;inset:0;background:#0005;z-index:90}.overlay.show{display:block}.adminGrid{display:grid;grid-template-columns:280px 1fr;gap:18px}.list{display:grid;gap:8px}.item{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #e5e9f0;border-radius:10px;padding:10px}.actions{display:flex;gap:5px}.small{padding:7px 9px;font-size:12px}.empty{text-align:center;padding:28px;color:#687386;border:1px dashed #e5e9f0;border-radius:12px}
+@media(max-width:800px){.grid3{grid-template-columns:1fr 1fr}.adminGrid{grid-template-columns:1fr}}@media(max-width:520px){.grid3,.grid2{grid-template-columns:1fr}.container{padding:22px 14px 45px}}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="credit">This Website Is Made By Nafiz <span>♥️</span></div>
+<section id="auth" class="auth"><div class="auth-card">
+<div style="text-align:center;font-size:40px">🎓</div><h1 style="text-align:center">StudyHub</h1><p class="muted" style="text-align:center">Student learning portal</p>
+<div class="tabs"><button id="studentTab" class="tab active">Student Login</button><button id="adminTab" class="tab">Admin</button></div><div id="msg"></div>
+<div id="studentAuth"><div id="loginBox">
+<div class="field"><label>Phone / Username</label><input id="loginId"></div><div class="field"><label>Password</label><input id="loginPass" type="password"></div><button id="loginBtn" class="btn primary full">Login</button>
+<p style="text-align:center;font-size:13px">New student? <button id="toRegister" style="border:0;background:none;color:#2563eb;font-weight:700">Create account</button></p></div>
+<div id="registerBox" class="hidden"><div class="field"><label>Full name</label><input id="regName"></div><div class="field"><label>Phone / Username</label><input id="regId"></div><div class="field"><label>Password</label><input id="regPass" type="password"></div><button id="registerBtn" class="btn primary full">Create Account</button>
+<p style="text-align:center;font-size:13px">Already registered? <button id="toLogin" style="border:0;background:none;color:#2563eb;font-weight:700">Login</button></p></div></div>
+<div id="adminAuth" class="hidden"><div class="field"><label>Admin password</label><input id="adminPass" type="password"></div><button id="adminLogin" class="btn primary full">Open Admin Panel</button></div>
+</div></section>
 
-<!-- AUTH -->
-<section id="authPage" class="auth">
-<div class="auth-card">
-  <div style="text-align:center;font-size:40px">🎓</div>
-  <h1 style="text-align:center">StudyHub</h1>
-  <p style="text-align:center">Student learning portal</p>
-  <div class="tabs">
-    <button class="tab active" id="userTab">Student Login</button>
-    <button class="tab" id="adminTab">Admin</button>
-  </div>
-  <div id="authMsg"></div>
+<div id="studentApp" class="hidden">
+<header class="top"><button id="menuBtn" class="menu"><i></i><i></i><i></i></button><div class="logo">Study<b>Hub</b></div><div id="avatar" class="avatar">S</div></header>
+<div id="overlay" class="overlay"></div><aside id="side" class="side"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><div class="logo">Study<b>Hub</b></div><button id="closeSide" class="btn secondary small">×</button></div><button id="homeBtn">🏠 Home</button><button id="logoutBtn">🚪 Logout</button></aside>
+<main id="studentMain"><section id="homeView"><div class="container"><div class="hero"><h1>What do you want to learn?</h1><p class="muted">Choose a subject to continue your study.</p></div><div id="subjects" class="grid3"></div></div></section>
+<section id="topicView" class="hidden"><div class="container"><button id="topicBack" class="back">← All Subjects</button><h1 id="topicTitle"></h1><div id="topics" class="grid3"></div></div></section>
+<section id="videoView" class="hidden"><div class="container"><button id="videoBack" class="back">← Topics</button><h1 id="videoTitle"></h1><div id="videos" class="grid2"></div></div></section>
+<section id="watchView" class="hidden"><div class="container"><button id="watchBack" class="back">← Videos</button><div class="card"><div class="player"><iframe id="player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div><h2 id="watchTitle"></h2></div></div></section></main></div>
 
-  <div id="userAuth">
-    <div id="loginForm">
-      <div class="field"><label>Phone / Username</label><input id="loginId" placeholder="Enter your phone or username"></div>
-      <div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="Enter password"></div>
-      <button class="btn primary full" id="loginBtn">Login</button>
-      <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted)">New student? <button id="showRegister" style="border:0;background:none;color:var(--primary);font-weight:700">Create account</button></p>
-    </div>
-    <div id="registerForm" class="hidden">
-      <div class="field"><label>Full name</label><input id="regName" placeholder="Your name"></div>
-      <div class="field"><label>Phone / Username</label><input id="regId" placeholder="Use a unique phone or username"></div>
-      <div class="field"><label>Password</label><input id="regPass" type="password" placeholder="Create a password"></div>
-      <button class="btn primary full" id="registerBtn">Create Account</button>
-      <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted)">Already registered? <button id="showLogin" style="border:0;background:none;color:var(--primary);font-weight:700">Login</button></p>
-    </div>
-  </div>
+<section id="adminPage" class="hidden"><header class="top"><div class="logo">Study<b>Hub</b> Admin</div><button id="adminExit" class="btn secondary small" style="margin-left:auto">Exit</button></header>
+<div class="container"><h1>Admin Panel</h1><p class="muted">All content is stored online in Supabase.</p><div id="adminMsg"></div>
+<div style="margin:18px 0;display:flex;gap:8px;flex-wrap:wrap"><button id="studentsBtn" class="btn secondary">👥 Students</button></div><div id="studentsPanel" class="card hidden" style="margin-bottom:18px"><h2>Students</h2><div id="students"></div></div>
+<div class="adminGrid"><div class="card"><h2>Subjects</h2><div id="adminSubjects" class="list"></div><hr><input id="newSubject" placeholder="Subject name" style="width:100%;padding:11px;border:1px solid #e5e9f0;border-radius:9px"><button id="addSubject" class="btn primary" style="margin-top:8px">+ Add Subject</button></div>
+<div class="card"><h2 id="editorTitle">Select a subject</h2><div id="editor" class="empty">Select a subject.</div></div></div></div></section>
 
-  <div id="adminAuth" class="hidden">
-    <div class="notice">Admin access is controlled by the password configured in the website code. Change it before publishing.</div>
-    <div class="field"><label>Admin password</label><input id="adminPass" type="password" placeholder="Enter admin password"></div>
-    <button class="btn primary full" id="adminLogin">Open Admin Panel</button>
-  </div>
-</div>
-</section>
-
-<!-- APP -->
-<div id="app" class="hidden">
-<header class="top">
-  <button class="menu" id="menuBtn"><i></i><i></i><i></i></button>
-  <div class="logo">Study<b>Hub</b></div>
-  <div class="avatar" id="avatar">S</div>
-</header>
-<div class="overlay" id="overlay"></div>
-<aside class="side" id="side">
-  <div class="side-head"><strong class="logo">Study<b>Hub</b></strong><button class="btn secondary small" id="closeSide">✕</button></div>
-  <a href="#subjects" data-nav>🏠 Home</a>
-  <a href="#subjects" data-nav>📚 Subjects</a>
-  <button id="logoutBtn">🚪 Logout</button>
-</aside>
-
-<main>
-<section id="subjectsView" class="view">
-<div class="container">
-  <div class="hero"><h1>What do you want to learn?</h1><p>Choose a subject to continue your study.</p></div>
-  <div id="subjectGrid" class="subject-grid"></div>
-</div>
-</section>
-
-<section id="topicsView" class="view hidden">
-<div class="container">
-  <button class="back" id="topicsBack">← All Subjects</button>
-  <h1 class="page-title" id="topicsTitle"></h1>
-  <div id="topicGrid" class="topic-grid"></div>
-</div>
-</section>
-
-<section id="videosView" class="view hidden">
-<div class="container">
-  <button class="back" id="videosBack">← Topics</button>
-  <h1 class="page-title" id="videosTitle"></h1>
-  <div id="videoGrid" class="video-grid"></div>
-</div>
-</section>
-
-<section id="watchView" class="view hidden">
-<div class="container">
-  <button class="back" id="watchBack">← Videos</button>
-  <div class="player-box">
-    <div class="player"><iframe id="ytPlayer" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
-    <h1 id="watchTitle"></h1>
-  </div>
-</div>
-</section>
-</main>
-</div>
-
-<!-- ADMIN -->
-<section id="adminPage" class="hidden">
-<header class="top">
-  <button class="menu" id="adminMenuBtn"><i></i><i></i><i></i></button>
-  <div class="logo">Study<b>Hub</b> Admin</div>
-  <button class="btn secondary small" id="adminExit">Exit Admin</button>
-</header>
-<div class="container">
-  <div class="admin-title"><div><h1>Admin Panel</h1><p style="color:var(--muted);margin-top:5px">Manage your complete course structure.</p></div></div>
-  <div class="notice">Everything you add here is saved in this browser automatically. You do not need to edit the HTML every time you add a subject, topic or video.</div>
-  <div style="margin:18px 0">
-    <button class="btn secondary" id="showUsersBtn">👥 View Students</button>
-  </div>
-  <div id="usersPanel" class="panel hidden" style="margin-bottom:20px">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px">
-      <div><h2 style="margin:0">Registered Students</h2><p style="color:var(--muted);font-size:13px;margin-top:4px">View names, phone/usernames and manage passwords.</p></div>
-      <button class="btn secondary small" id="closeUsersBtn">Close</button>
-    </div>
-    <div id="usersList"></div>
-  </div>
-  <div class="admin-grid">
-    <div class="panel">
-      <h2>Subjects</h2>
-      <div id="adminSubjects"></div>
-      <div class="divider"></div>
-      <h3 style="font-size:15px;margin-bottom:10px">Add Subject</h3>
-      <div class="field"><input id="newSubjectName" placeholder="e.g. English"></div>
-      <button class="btn primary full" id="addSubject">+ Add Subject</button>
-    </div>
-    <div class="panel">
-      <h2 id="adminEditorTitle">Select a subject</h2>
-      <div id="adminEditor">
-        <div class="empty">Select a subject from the left to manage its topics and videos.</div>
-      </div>
-    </div>
-  </div>
-</div>
-</section>
-
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* =========================================================
-   STUDYHUB ONLINE VERSION
-   1) Create a Supabase project.
-   2) Run the SQL file supplied with this website.
-   3) Paste your Project URL + anon public key below.
-   ========================================================= */
-const SUPABASE_URL = "https://koigpkmufqorivxeggia.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_d6K-w7SB8KVHuT-CQgSK9A_ryXPqnS4";
-
-const ADMIN_PASSWORD = "Nafiz2855"; // CHANGE THIS TOO
-
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-const defaultData={subjects:[
-{id:"english",name:"English",icon:"🇬🇧",topics:[
-{id:"narration",name:"Narration",videos:[{title:"Narration Class 1",url:"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}]},
-{id:"changing-sentence",name:"Changing Sentence",videos:[]}]},
-{id:"bangla",name:"Bangla",icon:"🇧🇩",topics:[{id:"prokriti",name:"প্রকৃতি ও প্রত্যয়",videos:[]}]},
-{id:"ict",name:"ICT",icon:"💻",topics:[{id:"number-system",name:"Number System",videos:[]}]}
-]};
-
-let data={subjects:[]}, currentSubject=null,currentTopic=null,adminSubject=null;
-let currentUser=null;
-
+const SUPABASE_URL="https://koigpkmufqorivxeggia.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_d6K-w7SB8KVHuT-CQgSK9A_ryXPqnS4";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let site={subjects:[]},currentSubject=null,currentTopic=null,adminSubject=null,adminOpen=false;
+const $=id=>document.getElementById(id),uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+"_"+Math.random();
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function uid(p){return p+"_"+Date.now()+"_"+Math.random().toString(36).slice(2,7)}
-function ytId(url){
- try{const u=new URL(url);if(u.hostname.includes("youtu.be"))return u.pathname.slice(1).split("?")[0];return u.searchParams.get("v")}
- catch(e){return null}
-}
-function showAuthMsg(text,type="error"){document.getElementById("authMsg").innerHTML=text?`<div class="${type}">${esc(text)}</div>`:""}
-function dbReady(){
- if(SUPABASE_URL.startsWith("PASTE_")||SUPABASE_ANON_KEY.startsWith("PASTE_")){
-   alert("Supabase is not connected yet. Open index.html and paste your Supabase Project URL and anon public key at the top of the script.");
-   return false;
- }
- return true;
-}
+function ytId(u){try{let x=new URL(u);if(x.hostname==="youtu.be"||x.hostname.endsWith(".youtu.be"))return x.pathname.split("/")[1]||null;if(x.hostname.includes("youtube.com")){if(x.pathname==="/shorts/"||x.pathname==="/embed/")return x.pathname.split("/")[2]||null;return x.searchParams.get("v")}}catch(e){}return null}
+function message(t,ok=false){$("msg").innerHTML=t?`<div class="msg ${ok?"success":"error"}">${esc(t)}</div>`:""}
+function amsg(t,ok=false){$("adminMsg").innerHTML=t?`<div class="msg ${ok?"success":"error"}">${esc(t)}</div>`:""}
+function view(id){["homeView","topicView","videoView","watchView"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");scrollTo(0,0)}
+async function loadSite(){let r=await sb.from("site_data").select("data").eq("id",1).single();if(r.error)throw r.error;site=r.data?.data||{subjects:[]}}
+function openStudent(u){$("auth").classList.add("hidden");$("adminPage").classList.add("hidden");$("studentApp").classList.remove("hidden");$("avatar").textContent=(u.name||"S")[0].toUpperCase();renderSubjects();view("homeView")}
+function openAdmin(){adminOpen=true;$("auth").classList.add("hidden");$("studentApp").classList.add("hidden");$("adminPage").classList.remove("hidden");renderAdminSubjects()}
+function openAuth(){adminOpen=false;$("studentApp").classList.add("hidden");$("adminPage").classList.add("hidden");$("auth").classList.remove("hidden")}
+$("studentTab").onclick=()=>{$("studentTab").classList.add("active");$("adminTab").classList.remove("active");$("studentAuth").classList.remove("hidden");$("adminAuth").classList.add("hidden");message("")};
+$("adminTab").onclick=()=>{$("adminTab").classList.add("active");$("studentTab").classList.remove("active");$("studentAuth").classList.add("hidden");$("adminAuth").classList.remove("hidden");message("")};
+$("toRegister").onclick=()=>{$("loginBox").classList.add("hidden");$("registerBox").classList.remove("hidden");message("")};
+$("toLogin").onclick=()=>{$("registerBox").classList.add("hidden");$("loginBox").classList.remove("hidden");message("")};
 
-/* ---------------- ONLINE CONTENT ---------------- */
-async function loadData(){
- const {data:row,error}=await sb.from("site_data").select("id,data").eq("id",1).maybeSingle();
- if(error) throw error;
- if(row && row.data){data=row.data;return}
- const {error:insErr}=await sb.from("site_data").insert({id:1,data:defaultData});
- if(insErr) throw insErr;
- data=JSON.parse(JSON.stringify(defaultData));
-}
-async function saveData(){
- const {error}=await sb.from("site_data").upsert({id:1,data}, {onConflict:"id"});
- if(error){alert("Could not save changes: "+error.message);throw error}
-}
-async function refreshData(){
- try{await loadData();renderSubjects();renderAdminSubjects()}catch(e){console.error(e);alert("Could not load online data. Check Supabase setup and RLS policies.")}}
-/* Realtime: every device sees admin changes without refreshing */
-function startRealtime(){
- sb.channel("studyhub-content")
- .on("postgres_changes",{event:"*",schema:"public",table:"site_data"},async()=>{try{await loadData();renderSubjects();renderAdminSubjects()}catch(e){}})
- .subscribe();
-}
-
-/* ---------------- AUTH UI ---------------- */
-const authPage=document.getElementById("authPage"),app=document.getElementById("app"),adminPage=document.getElementById("adminPage");
-userTab.onclick=()=>{userTab.classList.add("active");adminTab.classList.remove("active");userAuth.classList.remove("hidden");adminAuth.classList.add("hidden");showAuthMsg("")};
-adminTab.onclick=()=>{adminTab.classList.add("active");userTab.classList.remove("active");adminAuth.classList.remove("hidden");userAuth.classList.add("hidden");showAuthMsg("")};
-showRegister.onclick=()=>{loginForm.classList.add("hidden");registerForm.classList.remove("hidden");showAuthMsg("")};
-showLogin.onclick=()=>{registerForm.classList.add("hidden");loginForm.classList.remove("hidden");showAuthMsg("")};
-
-async function loadProfile(id){
- const {data:p,error}=await sb.from("profiles").select("id,name,login_id").eq("id",id).maybeSingle();
- if(error) throw error; return p;
-}
-
-/*
-  Student authentication:
-  We use Supabase Auth. The student's phone/username is converted
-  to an internal email-like login identifier. The actual password
-  is never stored in the database.
-*/
-function authEmail(loginId){return loginId.trim().toLowerCase().replace(/[^a-z0-9._-]/g,"_")+"@students.studyhub.local";}
-
-registerBtn.onclick=async()=>{
- if(!dbReady())return;
- const name=regName.value.trim(),id=regId.value.trim(),pass=regPass.value;
- if(!name||!id||!pass)return showAuthMsg("Please fill in all fields.");
- if(pass.length<6)return showAuthMsg("Password must be at least 6 characters.");
- try{
-  const r=await sb.rpc("register_student",{p_name:name,p_login_id:id,p_password:pass});
-  if(r.error)throw r.error;
-  showAuthMsg("Account created. You can login now.","success");
-  registerForm.classList.add("hidden");loginForm.classList.remove("hidden");
- }catch(e){showAuthMsg(e.message||"Registration failed.");}
+$("registerBtn").onclick=async()=>{
+ let name=$("regName").value.trim(),id=$("regId").value.trim(),pass=$("regPass").value;
+ if(!name||!id||!pass)return message("Please fill in all fields.");
+ if(pass.length<6)return message("Password must be at least 6 characters.");
+ let r=await sb.rpc("register_student",{p_name:name,p_login_id:id,p_password:pass});
+ if(r.error)return message(r.error.message);
+ if(!r.data?.success)return message(r.data?.message||"Registration failed.");
+ message("Account created. You can login now.",true);$("registerBox").classList.add("hidden");$("loginBox").classList.remove("hidden");$("loginId").value=id;$("loginPass").value="";
 };
-
-loginBtn.onclick=async()=>{
- if(!dbReady())return;
- const id=loginId.value.trim(),pass=loginPass.value;
- if(!id||!pass)return showAuthMsg("Enter your login and password.");
- try{
-  const r=await sb.rpc("login_student",{p_login_id:id,p_password:pass});
-  if(r.error)throw r.error;
-  if(!r.data)throw new Error("Incorrect username or password.");
-  currentUser=r.data; localStorage.setItem("studyhub_user",JSON.stringify(r.data)); openStudent(r.data);
- }catch(e){showAuthMsg("Incorrect username/phone or password.");}
+$("loginBtn").onclick=async()=>{
+ let id=$("loginId").value.trim(),pass=$("loginPass").value;if(!id||!pass)return message("Enter username and password.");
+ let r=await sb.rpc("login_student",{p_login_id:id,p_password:pass});if(r.error)return message(r.error.message);if(!r.data?.success)return message(r.data?.message||"Wrong username or password.");
+ localStorage.setItem("studyhub_user",JSON.stringify({name:r.data.name,login_id:r.data.login_id,id:r.data.id}));openStudent(r.data);
 };
+$("adminLogin").onclick=async()=>{let p=$("adminPass").value;if(!p)return message("Enter admin password.");let r=await sb.rpc("admin_login",{p_password:p});if(r.error)return message(r.error.message);if(!r.data?.success)return message("Wrong admin password.");sessionStorage.setItem("studyhub_admin","1");openAdmin()};
+$("adminExit").onclick=openAuth;
+$("logoutBtn").onclick=()=>{localStorage.removeItem("studyhub_user");openAuth()};
+$("homeBtn").onclick=()=>{closeSide();renderSubjects();view("homeView")};
+$("menuBtn").onclick=()=>{$("side").classList.add("open");$("overlay").classList.add("show")};$("closeSide").onclick=closeSide;$("overlay").onclick=closeSide;function closeSide(){$("side").classList.remove("open");$("overlay").classList.remove("show")}
 
-/* ---------------- PAGES ---------------- */
-function openStudent(u){
- authPage.classList.add("hidden");adminPage.classList.add("hidden");app.classList.remove("hidden");
- avatar.textContent=(u.name||"S")[0].toUpperCase();showView("subjectsView");renderSubjects();
-}
-function openAdmin(){
- authPage.classList.add("hidden");app.classList.add("hidden");adminPage.classList.remove("hidden");renderAdminSubjects();
-}
-async function logout(){
- try{await sb.auth.signOut()}catch(e){}
- currentUser=null;app.classList.add("hidden");adminPage.classList.add("hidden");authPage.classList.remove("hidden");adminPass.value="";
-}
-logoutBtn.onclick=logout;adminExit.onclick=logout;
+function renderSubjects(){$("subjects").innerHTML=site.subjects.map(s=>`<div class="card click" onclick="openTopics('${s.id}')"><div style="font-size:34px">${esc(s.icon||"📚")}</div><h2>${esc(s.name)}</h2><p class="muted">${s.topics.length} chapter(s)</p></div>`).join("")||'<div class="empty" style="grid-column:1/-1">No subjects yet.</div>'}
+function openTopics(id){currentSubject=site.subjects.find(x=>x.id===id);if(!currentSubject)return;$("topicTitle").textContent=currentSubject.name;$("topics").innerHTML=currentSubject.topics.map(t=>`<div class="card click" onclick="openVideos('${t.id}')"><h3>${esc(t.name)}</h3><p class="muted">${t.videos.length} video(s)</p></div>`).join("")||'<div class="empty" style="grid-column:1/-1">No chapters yet.</div>';view("topicView")}
+function openVideos(id){currentTopic=currentSubject.topics.find(x=>x.id===id);if(!currentTopic)return;$("videoTitle").textContent=currentTopic.name;$("videos").innerHTML=currentTopic.videos.map((v,i)=>{let y=ytId(v.url);return `<article class="card"><div class="thumb"><img src="https://img.youtube.com/vi/${esc(y)}/hqdefault.jpg"></div><h3>${esc(v.title)}</h3><p class="muted">${esc(currentSubject.name)} • ${esc(currentTopic.name)}</p><button class="btn primary full watch" onclick="openWatch(${i})">▶ Watch Video</button></article>`}).join("")||'<div class="empty" style="grid-column:1/-1">No videos yet.</div>';view("videoView")}
+function openWatch(i){let v=currentTopic.videos[i],y=ytId(v.url);if(!y)return;$("watchTitle").textContent=v.title;$("player").src=`https://www.youtube.com/embed/${encodeURIComponent(y)}?rel=0&playsinline=1`;view("watchView")}
+$("topicBack").onclick=()=>view("homeView");$("videoBack").onclick=()=>view("topicView");$("watchBack").onclick=()=>{$("player").src="";view("videoView")};
 
-/* ---------------- STUDENT CONTENT ---------------- */
-function showView(id){document.querySelectorAll("#app .view").forEach(v=>v.classList.add("hidden"));document.getElementById(id).classList.remove("hidden")}
-function renderSubjects(){
- subjectGrid.innerHTML=data.subjects.map(s=>`<div class="subject" onclick="openTopics('${s.id}')"><div class="icon">${esc(s.icon||"📘")}</div><div><h2>${esc(s.name)}</h2><p>${s.topics.length} topic${s.topics.length===1?"":"s"}</p></div></div>`).join("")||'<div class="empty" style="grid-column:1/-1">No subjects added yet.</div>';
-}
-function openTopics(id){
- currentSubject=data.subjects.find(s=>s.id===id);if(!currentSubject)return;
- topicsTitle.textContent=currentSubject.name;
- topicGrid.innerHTML=currentSubject.topics.map(t=>`<div class="topic" onclick="openVideos('${t.id}')"><h3>${esc(t.name)}</h3><p>${t.videos.length} video${t.videos.length===1?"":"s"}</p></div>`).join("")||'<div class="empty" style="grid-column:1/-1">No topics added yet.</div>';
- showView("topicsView");
-}
-function openVideos(id){
- currentTopic=currentSubject.topics.find(t=>t.id===id);if(!currentTopic)return;
- videosTitle.textContent=currentTopic.name;
- videoGrid.innerHTML=currentTopic.videos.map((v,i)=>{const id=ytId(v.url);return `<article class="video-card"><a href="#watch" class="thumb" onclick="openWatch(${i});return false"><img src="https://img.youtube.com/vi/${id}/hqdefault.jpg" alt=""><span class="play"></span></a><h3>${esc(v.title||"Untitled video")}</h3><p>${esc(currentSubject.name)} • ${esc(currentTopic.name)}</p><a class="watch" href="#watch" onclick="openWatch(${i});return false">▶ Watch Video</a></article>`}).join("")||'<div class="empty" style="grid-column:1/-1">No videos added yet.</div>';
- showView("videosView");
-}
-function openWatch(index){
- const v=currentTopic.videos[index],id=ytId(v.url);if(!id)return;
- watchTitle.textContent=v.title||"Video";ytPlayer.src=`https://www.youtube.com/embed/${id}?rel=0&playsinline=1`;showView("watchView");scrollTo(0,0);
-}
-topicsBack.onclick=()=>showView("subjectsView");videosBack.onclick=()=>showView("topicsView");watchBack.onclick=()=>{ytPlayer.src="";showView("videosView")};
+async function saveSite(){let r=await sb.rpc("admin_save_site",{p_data:site});if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.message||"Could not save")}
+function renderAdminSubjects(){$("adminSubjects").innerHTML=site.subjects.map(s=>`<div class="item"><span>${esc(s.icon||"📚")} ${esc(s.name)}</span><div class="actions"><button class="btn secondary small" onclick="manageSubject('${s.id}')">Manage</button><button class="btn danger small" onclick="removeSubject('${s.id}')">×</button></div></div>`).join("")||'<div class="empty">No subjects.</div>'}
+$("addSubject").onclick=async()=>{let n=$("newSubject").value.trim();if(!n)return;site.subjects.push({id:uid(),name:n,icon:"📚",topics:[]});try{await saveSite();$("newSubject").value="";renderAdminSubjects()}catch(e){amsg(e.message)}}
+function manageSubject(id){adminSubject=site.subjects.find(x=>x.id===id);if(!adminSubject)return;$("editorTitle").textContent="Manage: "+adminSubject.name;renderEditor()}
+async function removeSubject(id){if(!confirm("Delete subject and all chapters/videos?"))return;site.subjects=site.subjects.filter(x=>x.id!==id);adminSubject=null;try{await saveSite();renderAdminSubjects();$("editorTitle").textContent="Select a subject";$("editor").innerHTML='<div class="empty">Select a subject.</div>'}catch(e){amsg(e.message)}}
+function renderEditor(){let s=adminSubject;$("editor").className="";$("editor").innerHTML=`<div class="field"><label>Subject name</label><input id="subName" value="${esc(s.name)}"></div><div class="field"><label>Icon</label><input id="subIcon" value="${esc(s.icon||"📚")}"></div><button class="btn primary" onclick="saveSubjectInfo()">Save Subject</button><hr><h3>Chapters</h3><div class="list">${s.topics.map(t=>`<div class="item"><span>${esc(t.name)} (${t.videos.length})</span><div class="actions"><button class="btn secondary small" onclick="manageTopic('${t.id}')">Manage</button><button class="btn danger small" onclick="removeTopic('${t.id}')">×</button></div></div>`).join("")||'<div class="empty">No chapters.</div>'}</div><hr><input id="newTopic" placeholder="Chapter name" style="width:100%;padding:11px;border:1px solid #e5e9f0;border-radius:9px"><button class="btn primary" style="margin-top:8px" onclick="addTopic()">+ Add Chapter</button><div id="topicEditor" style="margin-top:18px"></div>`}
+async function saveSubjectInfo(){adminSubject.name=$("subName").value.trim()||adminSubject.name;adminSubject.icon=$("subIcon").value.trim()||"📚";try{await saveSite();renderAdminSubjects();renderEditor()}catch(e){amsg(e.message)}}
+async function addTopic(){let n=$("newTopic").value.trim();if(!n)return;adminSubject.topics.push({id:uid(),name:n,videos:[]});try{await saveSite();renderEditor()}catch(e){amsg(e.message)}}
+async function removeTopic(id){if(!confirm("Delete chapter and videos?"))return;adminSubject.topics=adminSubject.topics.filter(x=>x.id!==id);try{await saveSite();renderEditor()}catch(e){amsg(e.message)}}
+function manageTopic(id){let t=adminSubject.topics.find(x=>x.id===id);$("topicEditor").innerHTML=`<div class="card"><h3>${esc(t.name)}</h3><div class="field"><label>Chapter name</label><input id="topicName" value="${esc(t.name)}"></div><button class="btn secondary small" onclick="saveTopic('${id}')">Save Name</button><hr><h4>Videos</h4><div class="list">${t.videos.map((v,i)=>`<div class="item"><span>${esc(v.title)}</span><button class="btn danger small" onclick="removeVideo('${id}',${i})">Delete</button></div>`).join("")||'<div class="empty">No videos.</div>'}</div><hr><h4>Add YouTube Video</h4><div class="field"><label>Video title</label><input id="videoName"></div><div class="field"><label>YouTube URL</label><input id="videoUrl"></div><button class="btn primary" onclick="addVideo('${id}')">+ Add Video</button></div>`}
+async function saveTopic(id){let t=adminSubject.topics.find(x=>x.id===id),n=$("topicName").value.trim();if(n)t.name=n;try{await saveSite();renderEditor();manageTopic(id)}catch(e){amsg(e.message)}}
+async function addVideo(id){let t=adminSubject.topics.find(x=>x.id===id),title=$("videoName").value.trim(),url=$("videoUrl").value.trim(),y=ytId(url);if(!title||!y)return alert("Enter a title and valid YouTube URL.");t.videos.push({id:uid(),title,url});try{await saveSite();renderEditor();manageTopic(id)}catch(e){amsg(e.message)}}
+async function removeVideo(id,i){let t=adminSubject.topics.find(x=>x.id===id);if(!confirm("Delete video?"))return;t.videos.splice(i,1);try{await saveSite();renderEditor();manageTopic(id)}catch(e){amsg(e.message)}}
 
-/* Side menu */
-function closeSide(){side.classList.remove("open");overlay.classList.remove("show")}
-menuBtn.onclick=()=>{side.classList.add("open");overlay.classList.add("show")};closeSide.onclick=closeSide;overlay.onclick=closeSide;
-document.querySelectorAll("[data-nav]").forEach(a=>a.onclick=()=>{closeSide();showView("subjectsView");renderSubjects()});
-
-/* ---------------- ADMIN CONTENT ---------------- */
-function renderAdminSubjects(){
- adminSubjects.innerHTML=data.subjects.map(s=>`<div class="list-item"><span>${esc(s.icon||"📘")} ${esc(s.name)}</span><div class="actions"><button class="btn secondary small" onclick="editAdminSubject('${s.id}')">Edit</button><button class="btn danger small" onclick="deleteSubject('${s.id}')">×</button></div></div>`).join("")||'<div class="empty">No subjects.</div>';
- if(adminSubject)editAdminSubject(adminSubject.id);
-}
-addSubject.onclick=async()=>{
- const name=newSubjectName.value.trim();if(!name)return;
- data.subjects.push({id:uid("subject"),name,icon:"📚",topics:[]});
- await saveData();newSubjectName.value="";renderAdminSubjects();
-};
-function editAdminSubject(id){adminSubject=data.subjects.find(s=>s.id===id);if(!adminSubject)return;adminEditorTitle.textContent="Manage: "+adminSubject.name;renderAdminEditor()}
-function renderAdminEditor(){
- if(!adminSubject)return;
- adminEditor.innerHTML=`<div class="form-grid">
- <div class="field"><label>Subject name</label><input id="editSubName" value="${esc(adminSubject.name)}"></div>
- <div class="field"><label>Icon / Emoji</label><input id="editSubIcon" value="${esc(adminSubject.icon||"📚")}"></div>
- <div class="wide"><button class="btn primary" onclick="saveSubjectInfo()">Save Subject Changes</button></div></div>
- <div class="divider"></div><h3 style="margin-bottom:12px">Topics / Chapters</h3>
- <div>${adminSubject.topics.map(t=>`<div class="list-item"><span>${esc(t.name)} <small style="color:#8791a0">(${t.videos.length} videos)</small></span><div class="actions"><button class="btn secondary small" onclick="editTopic('${t.id}')">Manage</button><button class="btn danger small" onclick="deleteTopic('${t.id}')">×</button></div></div>`).join("")||'<div class="empty">No topics yet.</div>'}</div>
- <div class="divider"></div><h3 style="margin-bottom:10px">Add Topic / Chapter</h3>
- <div class="field"><input id="newTopicName" placeholder="e.g. Narration"></div><button class="btn primary" onclick="addTopic()">+ Add Topic</button><div id="topicEditor" style="margin-top:20px"></div>`;
-}
-async function saveSubjectInfo(){adminSubject.name=editSubName.value.trim()||adminSubject.name;adminSubject.icon=editSubIcon.value.trim()||"📚";await saveData();renderAdminSubjects();renderAdminEditor()}
-async function addTopic(){const n=newTopicName.value.trim();if(!n)return;adminSubject.topics.push({id:uid("topic"),name:n,videos:[]});await saveData();renderAdminEditor();renderAdminSubjects()}
-async function deleteSubject(id){if(!confirm("Delete this subject and all its topics/videos?"))return;data.subjects=data.subjects.filter(s=>s.id!==id);adminSubject=null;await saveData();renderAdminSubjects();adminEditorTitle.textContent="Select a subject";adminEditor.innerHTML='<div class="empty">Select a subject from the left.</div>'}
-async function deleteTopic(id){if(!confirm("Delete this topic and all videos inside it?"))return;adminSubject.topics=adminSubject.topics.filter(t=>t.id!==id);await saveData();renderAdminEditor();renderAdminSubjects()}
-function editTopic(id){
- const t=adminSubject.topics.find(x=>x.id===id);if(!t)return;
- topicEditor.innerHTML=`<div class="panel" style="padding:15px;background:#f9fafc"><h3 style="margin-bottom:12px">Manage: ${esc(t.name)}</h3>
- <div class="field"><label>Topic name</label><input id="editTopicName" value="${esc(t.name)}"></div><button class="btn secondary small" onclick="saveTopic('${t.id}')">Save Topic Name</button>
- <div class="divider"></div><h4 style="margin-bottom:10px">Videos</h4>
- ${t.videos.map((v,i)=>`<div class="list-item"><span>${esc(v.title||"Untitled")}<br><small style="color:#8791a0">${esc(v.url)}</small></span><button class="btn danger small" onclick="deleteVideo('${t.id}',${i})">Delete</button></div>`).join("")||'<div class="empty">No videos.</div>'}
- <div class="divider"></div><h4 style="margin-bottom:10px">Add YouTube Video</h4><div class="field"><label>Video title</label><input id="newVideoTitle" placeholder="e.g. Narration Class 2"></div>
- <div class="field"><label>YouTube URL</label><input id="newVideoUrl" placeholder="https://www.youtube.com/watch?v=..."></div><button class="btn primary" onclick="addVideo('${t.id}')">+ Add Video</button></div>`;
-}
-async function saveTopic(id){const t=adminSubject.topics.find(x=>x.id===id),n=editTopicName.value.trim();if(n)t.name=n;await saveData();renderAdminEditor();renderAdminSubjects();editTopic(id)}
-async function addVideo(topicId){const t=adminSubject.topics.find(x=>x.id===topicId),title=newVideoTitle.value.trim(),url=newVideoUrl.value.trim();if(!title||!url)return alert("Enter video title and YouTube URL.");if(!ytId(url))return alert("Please enter a valid YouTube URL.");t.videos.push({title,url});await saveData();renderAdminEditor();renderAdminSubjects();editTopic(topicId)}
-async function deleteVideo(topicId,index){const t=adminSubject.topics.find(x=>x.id===topicId);if(!confirm("Delete this video?"))return;t.videos.splice(index,1);await saveData();renderAdminEditor();renderAdminSubjects();editTopic(topicId)}
-
-/* ---------------- STUDENT ADMIN VIEW ----------------
-   Passwords are intentionally NOT shown. Supabase Auth stores them
-   securely. The admin can reset a password only after a secure
-   backend/Edge Function is added; never store plaintext passwords.
-*/
-function renderUsers(){
- const list=document.getElementById("usersList");
- list.innerHTML='<div class="notice">Student accounts are stored in Supabase Auth. For security, passwords are not readable by the admin. You can view each student’s name and login ID here.</div><div class="empty">Student list loading is enabled after the SQL/RLS setup. Use the profiles table to manage names and login IDs.</div>';
-}
-document.getElementById("showUsersBtn").onclick=()=>{document.getElementById("usersPanel").classList.remove("hidden");renderUsers()};
-document.getElementById("closeUsersBtn").onclick=()=>document.getElementById("usersPanel").classList.add("hidden");
-
-/* Start */
-(async function(){
- if(!dbReady())return;
- try{
-   await loadData();
-   startRealtime();
-   const {data:s}=await sb.auth.getSession();
-   if(s.session){
-     const p=await loadProfile(s.session.user.id);
-     if(p){currentUser=p;openStudent(p);return}
-   }
-   renderSubjects();renderAdminSubjects();
- }catch(e){
-   console.error(e);
-   showAuthMsg("Online database is not connected yet. Paste the Supabase URL and anon key in the code.");
- }
-})();
-</script>
-</body>
-</html>
+$("studentsBtn").onclick=async()=>{let p=prompt("Enter admin password to view students:");if(!p)return;let r=await sb.rpc("admin_list_students",{p_password:p});if(r.error)return amsg(r.error.message);if(!r.data?.success)return amsg("Wrong admin password.");$("studentsPanel").classList.remove("hidden");$("students").innerHTML=r.data.students.map(s=>`<div class="item"><div><b>${esc(s.name)}</b><div class="muted">${esc(s.login_id)}</div></div><button class="btn secondary small" onclick="changeStudentPassword('${esc(s.id)}','${esc(s.login_id)}')">Change password</button></div>`).join("")||'<div class="empty">No students.</div>'}
+async function changeStudentPassword(id,login){let p=prompt("New password for "+login);if(!p)return;if(p.length<6)return alert("Minimum 6 characters.");let admin=prompt("Admin password");if(!admin)return;let r=await sb.rpc("admin_change_password",{p_admin_password:admin,p_student_id:id,p_new_password:p}
