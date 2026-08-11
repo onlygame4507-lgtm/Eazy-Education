@@ -100,4 +100,10 @@ async function addVideo(id){let t=adminSubject.topics.find(x=>x.id===id),title=$
 async function removeVideo(id,i){let t=adminSubject.topics.find(x=>x.id===id);if(!confirm("Delete video?"))return;t.videos.splice(i,1);try{await saveSite();renderEditor();manageTopic(id)}catch(e){amsg(e.message)}}
 
 $("studentsBtn").onclick=async()=>{let p=prompt("Enter admin password to view students:");if(!p)return;let r=await sb.rpc("admin_list_students",{p_password:p});if(r.error)return amsg(r.error.message);if(!r.data?.success)return amsg("Wrong admin password.");$("studentsPanel").classList.remove("hidden");$("students").innerHTML=r.data.students.map(s=>`<div class="item"><div><b>${esc(s.name)}</b><div class="muted">${esc(s.login_id)}</div></div><button class="btn secondary small" onclick="changeStudentPassword('${esc(s.id)}','${esc(s.login_id)}')">Change password</button></div>`).join("")||'<div class="empty">No students.</div>'}
-async function changeStudentPassword(id,login){let p=prompt("New password for "+login);if(!p)return;if(p.length<6)return alert("Minimum 6 characters.");let admin=prompt("Admin password");if(!admin)return;let r=await sb.rpc("admin_change_password",{p_admin_password:admin,p_student_id:id,p_new_password:p}
+async function changeStudentPassword(id,login){let p=prompt("New password for "+login);if(!p)return;if(p.length<6)return alert("Minimum 6 characters.");let admin=prompt("Admin password");if(!admin)return;let r=await sb.rpc("admin_change_password",{p_admin_password:admin,p_student_id:id,p_new_password:p});if(r.error||!r.data?.success)return alert(r.error?.message||r.data?.message||"Could not change password");alert("Password changed.")}
+
+sb.channel("studyhub-live").on("postgres_changes",{event:"UPDATE",schema:"public",table:"site_data",filter:"id=eq.1"},payload=>{site=payload.new.data||{subjects:[]};renderSubjects();if(adminOpen)renderAdminSubjects()}).subscribe();
+
+(async()=>{try{await loadSite();let u=JSON.parse(localStorage.getItem("studyhub_user")||"null");if(u?.id)openStudent(u);else renderSubjects()}catch(e){message("Could not connect to Supabase: "+e.message)}})();
+</script>
+</body></html>
