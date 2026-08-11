@@ -16,8 +16,22 @@
       --danger: #ef4444;
       --success: #22c55e;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: system-ui, -apple-system, sans-serif;
+      -webkit-touch-callout: none;
+    }
+    body { 
+      background-color: var(--bg); 
+      color: var(--text); 
+      padding: 20px; 
+      min-height: 100vh; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+    }
     .container { width: 100%; max-width: 900px; background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
     h1, h2, h3 { color: var(--accent); margin-bottom: 15px; }
     .hidden { display: none !important; }
@@ -36,8 +50,8 @@
     th, td { padding: 10px; border: 1px solid #334155; text-align: left; }
     th { background: #0f172a; }
 
-    /* Video Protection CSS */
-    .video-container {
+    /* Video Security Styling */
+    .video-wrapper {
       position: relative;
       width: 100%;
       background: #000;
@@ -53,17 +67,25 @@
       display: block;
       outline: none;
     }
+    .video-overlay-shield {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 45px; /* Leaves controls accessible while blocking direct click on video frame */
+      z-index: 2;
+    }
   </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
 <div class="container">
   <!-- Supabase Credentials Setup -->
   <div id="config-section">
-    <h2>Supabase Config</h2>
+    <h2>Supabase Connection</h2>
     <div class="form-group"><label>Supabase URL</label><input type="text" id="cfg-url" placeholder="https://xyz.supabase.co" /></div>
     <div class="form-group"><label>Supabase Anon Key</label><input type="password" id="cfg-key" placeholder="your-anon-key" /></div>
-    <button onclick="initSupabase()">Save & Connect</button>
+    <button onclick="initSupabase()">Connect Database</button>
   </div>
 
   <div id="app-section" class="hidden">
@@ -77,7 +99,7 @@
 
     <div id="msg-box"></div>
 
-    <!-- Auth: Student Login -->
+    <!-- Student Login -->
     <div id="auth-login" class="auth-card hidden">
       <h2>Student Login</h2>
       <div class="form-group"><label>Username / Phone</label><input type="text" id="login-id" /></div>
@@ -85,7 +107,7 @@
       <button onclick="handleStudentLogin()">Login</button>
     </div>
 
-    <!-- Auth: Student Registration -->
+    <!-- Student Registration -->
     <div id="auth-register" class="auth-card hidden">
       <h2>Student Registration</h2>
       <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" /></div>
@@ -94,28 +116,28 @@
       <button onclick="handleStudentRegister()">Register</button>
     </div>
 
-    <!-- Auth: Admin Login -->
+    <!-- Admin Login -->
     <div id="auth-admin" class="auth-card hidden">
       <h2>Admin Login</h2>
-      <div class="form-group"><label>Admin Password</label><input type="password" id="admin-pass" /></div>
+      <div class="form-group"><label>Admin Password</label><input type="password" id="admin-pass" placeholder="Default: Nafiz2855" /></div>
       <button onclick="handleAdminLogin()">Login as Admin</button>
     </div>
 
     <!-- Student Dashboard -->
     <div id="student-dash" class="hidden">
-      <h2>Learning Content</h2>
+      <h2>Protected Course Videos</h2>
       <div id="content-display">Loading content...</div>
     </div>
 
     <!-- Admin Dashboard -->
     <div id="admin-dash" class="hidden">
-      <h2>Admin Dashboard</h2>
+      <h2>Admin Control Panel</h2>
       
-      <h3>1. Site Content Management (JSON)</h3>
+      <h3>1. Website JSON Content</h3>
       <div class="form-group">
-        <textarea id="site-json-input" rows="8" placeholder='{"subjects":[{"name":"Math","videos":["https://example.com/video.mp4"]}]}'></textarea>
+        <textarea id="site-json-input" rows="8" placeholder='{"subjects":[{"title":"Physics","video":"https://example.com/video.mp4"}]}'></textarea>
       </div>
-      <button onclick="handleSaveSiteContent()">Save Content</button>
+      <button onclick="handleSaveSiteContent()">Save Data</button>
 
       <hr style="margin:25px 0; border-color:#334155;" />
 
@@ -126,8 +148,8 @@
       <hr style="margin:25px 0; border-color:#334155;" />
 
       <h3>3. Change Admin Password</h3>
-      <div class="form-group"><label>Current Admin Password</label><input type="password" id="old-admin-pass" /></div>
-      <div class="form-group"><label>New Admin Password</label><input type="password" id="new-admin-pass" /></div>
+      <div class="form-group"><label>Current Password</label><input type="password" id="old-admin-pass" /></div>
+      <div class="form-group"><label>New Password</label><input type="password" id="new-admin-pass" /></div>
       <button onclick="handleChangeAdminPassword()">Update Admin Password</button>
     </div>
   </div>
@@ -147,7 +169,7 @@
   function initSupabase() {
     const url = document.getElementById('cfg-url').value.trim();
     const key = document.getElementById('cfg-key').value.trim();
-    if(!url || !key) return alert('Supabase URL & Key enter korun.');
+    if(!url || !key) return alert('Supabase URL & Key enter করুন।');
 
     sbClient = supabase.createClient(url, key);
     document.getElementById('config-section').classList.add('hidden');
@@ -169,14 +191,14 @@
     if(type === 'admin') document.getElementById('auth-admin').classList.remove('hidden');
   }
 
-  // --- Student Auth ---
+  // --- Student Registration ---
   async function handleStudentRegister() {
     const name = document.getElementById('reg-name').value;
     const login_id = document.getElementById('reg-id').value;
     const password = document.getElementById('reg-pass').value;
 
     const { data, error } = await sbClient.rpc('register_student', {
-      p_name: name, p_login_id: login_id, p_password: password
+      p_login_id: login_id, p_name: name, p_password: password
     });
 
     if(error || !data.success) {
@@ -186,6 +208,7 @@
     showAuth('login');
   }
 
+  // --- Student Login ---
   async function handleStudentLogin() {
     const login_id = document.getElementById('login-id').value;
     const password = document.getElementById('login-pass').value;
@@ -202,14 +225,14 @@
     updateUIState();
   }
 
-  // --- Admin Auth & Actions ---
+  // --- Admin Login ---
   async function handleAdminLogin() {
     const pass = document.getElementById('admin-pass').value;
 
     const { data, error } = await sbClient.rpc('admin_login', { p_password: pass });
 
     if(error || !data.success) {
-      return showMessage(data?.message || error?.message || 'Admin login failed', true);
+      return showMessage(data?.message || error?.message || 'Wrong admin password', true);
     }
 
     currentUser = { role: 'admin' };
@@ -218,6 +241,7 @@
     loadStudentList();
   }
 
+  // --- Load and Protect Video Content ---
   async function loadPublicData() {
     const { data, error } = await sbClient.from('site_data').select('data').eq('id', 1).single();
     if(!error && data) {
@@ -226,49 +250,41 @@
     }
   }
 
-  // Render Function with Video Protection Controls
   function renderProtectedContent(jsonObj) {
     const display = document.getElementById('content-display');
     display.innerHTML = '';
 
-    const contentStr = JSON.stringify(jsonObj, null, 2);
-    const pre = document.createElement('pre');
-    pre.textContent = contentStr;
-    display.appendChild(pre);
-
-    // Dynamic Video Protection Handler
-    const videoUrls = extractVideoUrls(jsonObj);
-    if(videoUrls.length > 0) {
-      const vidTitle = document.createElement('h3');
-      vidTitle.style.marginTop = '20px';
-      vidTitle.textContent = 'Protected Class Videos';
-      display.appendChild(vidTitle);
-
-      videoUrls.forEach(url => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'video-container';
-        
-        const video = document.createElement('video');
-        video.src = url;
-        video.controls = true;
-        
-        // Anti-Sharing & Anti-Download Attributes
-        video.setAttribute('controlsList', 'nodownload noremoteplayback noplaybackrate');
-        video.setAttribute('disablePictureInPicture', 'true');
-        video.setAttribute('oncontextmenu', 'return false;');
-        
-        wrapper.appendChild(video);
-        display.appendChild(wrapper);
-      });
+    const urls = extractVideoUrls(jsonObj);
+    
+    if(urls.length === 0) {
+      display.innerHTML = '<p style="color:var(--text-muted)">No videos found. Admin can add video URLs in JSON format.</p>';
+      return;
     }
 
-    applyVideoProtections();
+    urls.forEach((url, idx) => {
+      const container = document.createElement('div');
+      container.className = 'video-wrapper';
+
+      const overlay = document.createElement('div');
+      overlay.className = 'video-overlay-shield';
+
+      const video = document.createElement('video');
+      video.src = url;
+      video.controls = true;
+      video.setAttribute('controlsList', 'nodownload noremoteplayback noplaybackrate');
+      video.setAttribute('disablePictureInPicture', 'true');
+      video.setAttribute('oncontextmenu', 'return false;');
+
+      container.appendChild(overlay);
+      container.appendChild(video);
+      display.appendChild(container);
+    });
   }
 
   function extractVideoUrls(obj) {
     let urls = [];
     const str = JSON.stringify(obj);
-    const regex = /(https?:\/\/[^\s"]+\.(?:mp4|webm|m3u8))/g;
+    const regex = /(https?:\/\/[^\s"]+\.(?:mp4|webm|m3u8|mov))/g;
     let match;
     while ((match = regex.exec(str)) !== null) {
       urls.push(match[1]);
@@ -276,30 +292,15 @@
     return urls;
   }
 
-  function applyVideoProtections() {
-    document.querySelectorAll('video').forEach(video => {
-      // Disable Context Menu (Right Click)
-      video.addEventListener('contextmenu', e => e.preventDefault());
-      
-      // Disable Dragging
-      video.addEventListener('dragstart', e => e.preventDefault());
-      
-      // Disable Key Shortcuts for video focus
-      video.addEventListener('keydown', e => {
-        if (e.key === 's' && (e.ctrlKey || e.metaKey)) e.preventDefault();
-      });
-    });
-  }
-
   async function handleSaveSiteContent() {
     try {
       const jsonData = JSON.parse(document.getElementById('site-json-input').value);
       const { data, error } = await sbClient.rpc('admin_save_site', { p_data: jsonData });
       if(error || !data.success) throw new Error(error?.message || 'Save failed');
-      showMessage('Site data updated successfully!');
+      showMessage('Content saved successfully!');
       loadPublicData();
     } catch(err) {
-      showMessage('Invalid JSON or error: ' + err.message, true);
+      showMessage('Invalid JSON format or error: ' + err.message, true);
     }
   }
 
@@ -314,7 +315,7 @@
         <td>${s.name}</td>
         <td>${s.login_id}</td>
         <td>${new Date(s.created_at).toLocaleDateString()}</td>
-        <td><button class="btn-secondary" onclick="changeStudentPass('${s.id}')">Change Pass</button></td>
+        <td><button class="btn-secondary" onclick="changeStudentPass('${s.id}')">Reset Password</button></td>
       </tr>`;
     });
     html += `</table>`;
@@ -332,7 +333,7 @@
     });
 
     if(error || !data.success) {
-      return showMessage(data?.message || error?.message || 'Failed to change password', true);
+      return showMessage(data?.message || error?.message || 'Failed to update password', true);
     }
     showMessage('Student password updated successfully!');
   }
@@ -348,7 +349,7 @@
     if(error || !data.success) {
       return showMessage(data?.message || error?.message || 'Password update failed', true);
     }
-    showMessage('Admin password changed successfully! Please log in again.');
+    showMessage('Admin password changed successfully! Logging out...');
     currentAdminPassword = newPass;
     logout();
   }
@@ -383,10 +384,10 @@
     updateUIState();
   }
 
-  // Prevent Right Click Globally on Video Overlay
-  document.addEventListener('contextmenu', event => {
-    if (event.target.tagName === 'VIDEO') {
-      event.preventDefault();
+  // Global Key & Context Menu Protection
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'u' || e.key === 'i')) {
+      e.preventDefault();
     }
   });
 </script>
