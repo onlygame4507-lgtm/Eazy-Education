@@ -249,7 +249,7 @@ async function loadProfile(id){
   to an internal email-like login identifier. The actual password
   is never stored in the database.
 */
-function authEmail(loginId){return loginId.trim().toLowerCase().replace(/[^a-z0-9._-]/g,"_")+"@students.studyhub.local"}
+function authEmail(loginId){return loginId.trim().toLowerCase().replace(/[^a-z0-9._-]/g,"_")+"@students.studyhub.local";}
 
 registerBtn.onclick=async()=>{
  if(!dbReady())return;
@@ -257,14 +257,11 @@ registerBtn.onclick=async()=>{
  if(!name||!id||!pass)return showAuthMsg("Please fill in all fields.");
  if(pass.length<6)return showAuthMsg("Password must be at least 6 characters.");
  try{
-   const {data:a,error}=await sb.auth.signUp({email:authEmail(id),password:pass});
-   if(error)throw error;
-   if(!a.user)throw new Error("Could not create account.");
-   const {error:pe}=await sb.from("profiles").insert({id:a.user.id,name,login_id:id});
-   if(pe)throw pe;
-   showAuthMsg("Account created. You can login now.","success");
-   registerForm.classList.add("hidden");loginForm.classList.remove("hidden");
- }catch(e){showAuthMsg(e.message||"Registration failed.")}
+  const r=await sb.rpc("register_student",{p_name:name,p_login_id:id,p_password:pass});
+  if(r.error)throw r.error;
+  showAuthMsg("Account created. You can login now.","success");
+  registerForm.classList.add("hidden");loginForm.classList.remove("hidden");
+ }catch(e){showAuthMsg(e.message||"Registration failed.");}
 };
 
 loginBtn.onclick=async()=>{
@@ -272,17 +269,11 @@ loginBtn.onclick=async()=>{
  const id=loginId.value.trim(),pass=loginPass.value;
  if(!id||!pass)return showAuthMsg("Enter your login and password.");
  try{
-   const {data:a,error}=await sb.auth.signInWithPassword({email:authEmail(id),password:pass});
-   if(error)throw error;
-   const p=await loadProfile(a.user.id);
-   if(!p)throw new Error("Student profile not found.");
-   currentUser=p;openStudent(p);
- }catch(e){showAuthMsg("Incorrect username/phone or password.")}
-};
-
-adminLogin.onclick=async()=>{
- if(adminPass.value!==ADMIN_PASSWORD)return showAuthMsg("Incorrect admin password.");
- openAdmin();
+  const r=await sb.rpc("login_student",{p_login_id:id,p_password:pass});
+  if(r.error)throw r.error;
+  if(!r.data)throw new Error("Incorrect username or password.");
+  currentUser=r.data; localStorage.setItem("studyhub_user",JSON.stringify(r.data)); openStudent(r.data);
+ }catch(e){showAuthMsg("Incorrect username/phone or password.");}
 };
 
 /* ---------------- PAGES ---------------- */
