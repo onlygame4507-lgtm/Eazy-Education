@@ -1,109 +1,304 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="bn">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>StudyHub</title>
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI","Noto Sans Bengali",sans-serif;background:#f5f7fb;color:#172033}
-button,input{font:inherit}.hidden{display:none!important}.credit{text-align:center;background:#fff;color:#8a93a1;font-size:12px;padding:10px;border-bottom:1px solid #edf0f4}.credit span{color:#ef4444}
-.top{height:68px;background:#fff;border-bottom:1px solid #e5e9f0;display:flex;align-items:center;padding:0 20px;gap:15px;position:sticky;top:0;z-index:30}.menu{border:0;background:none;display:grid;gap:5px;padding:10px}.menu i{display:block;width:25px;height:3px;background:#475569;border-radius:4px}.logo{font-size:22px;font-weight:850}.logo b{color:#2563eb}.avatar{margin-left:auto;width:39px;height:39px;border-radius:50%;background:#eaf1ff;display:grid;place-items:center;font-weight:800;color:#2563eb}
-.container{max-width:1100px;margin:auto;padding:28px 20px 60px}.auth{min-height:calc(100vh - 35px);display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#eef4ff,#f7f5ff)}.auth-card{width:min(430px,100%);background:#fff;padding:30px;border-radius:22px;box-shadow:0 20px 60px #26334d16}.tabs{display:flex;gap:5px;background:#f2f4f8;padding:4px;border-radius:11px;margin:20px 0}.tab{flex:1;border:0;padding:10px;border-radius:8px;background:none;font-weight:700;color:#687386}.tab.active{background:#fff;color:#2563eb}.field{margin-bottom:13px}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}.field input{width:100%;padding:12px;border:1px solid #e5e9f0;border-radius:10px;outline:0}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:750;cursor:pointer}.primary{background:#2563eb;color:#fff}.secondary{background:#eef2f7;color:#334155}.danger{background:#fee2e2;color:#b91c1c}.full{width:100%}.msg{padding:10px;border-radius:10px;font-size:13px;margin-bottom:13px}.error{background:#fee2e2;color:#991b1b}.success{background:#dcfce7;color:#166534}.hero{padding:22px 0 30px}.hero h1{font-size:clamp(30px,5vw,48px);margin:0}.muted{color:#687386}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.card{background:#fff;border:1px solid #e5e9f0;border-radius:17px;padding:18px}.click{cursor:pointer}.card:hover{border-color:#b9ccff}.back{border:0;background:none;color:#2563eb;font-weight:700;padding:0;margin-bottom:18px;cursor:pointer}.thumb{aspect-ratio:16/9;background:#ddd;border-radius:11px;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:cover}.watch{margin-top:10px}.player{background:#000;border-radius:14px;overflow:hidden}.player iframe{display:block;width:100%;aspect-ratio:16/9;border:0}.side{position:fixed;z-index:100;top:0;left:-285px;width:270px;height:100vh;background:#fff;box-shadow:10px 0 35px #0002;padding:20px;transition:.2s}.side.open{left:0}.side button{display:block;width:100%;text-align:left;border:0;background:none;padding:13px;border-radius:10px;font-weight:700}.overlay{display:none;position:fixed;inset:0;background:#0005;z-index:90}.overlay.show{display:block}.adminGrid{display:grid;grid-template-columns:280px 1fr;gap:18px}.list{display:grid;gap:8px}.item{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #e5e9f0;border-radius:10px;padding:10px}.actions{display:flex;gap:5px}.small{padding:7px 9px;font-size:12px}.empty{text-align:center;padding:28px;color:#687386;border:1px dashed #e5e9f0;border-radius:12px}
-@media(max-width:800px){.grid3{grid-template-columns:1fr 1fr}.adminGrid{grid-template-columns:1fr}}@media(max-width:520px){.grid3,.grid2{grid-template-columns:1fr}.container{padding:22px 14px 45px}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudyHub Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --danger: #ef4444;
+      --success: #22c55e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+    .container { width: 100%; max-width: 900px; background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    h1, h2, h3 { color: var(--accent); margin-bottom: 15px; }
+    .hidden { display: none !important; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 14px; }
+    input, textarea, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 15px; }
+    button { background: var(--accent); color: #000; font-weight: bold; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+    button:hover { background: var(--accent-hover); color: #fff; }
+    button.btn-danger { background: var(--danger); color: #fff; }
+    button.btn-secondary { background: #475569; color: #fff; }
+    .nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
+    .alert { padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; }
+    .alert-error { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: #fca5a5; }
+    .alert-success { background: rgba(34, 197, 94, 0.2); border: 1px solid var(--success); color: #86efac; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 10px; border: 1px solid #334155; text-align: left; }
+    th { background: #0f172a; }
+  </style>
 </head>
 <body>
-<div class="credit">This Website Is Made By Nafiz <span>♥️</span></div>
-<section id="auth" class="auth"><div class="auth-card">
-<div style="text-align:center;font-size:40px">🎓</div><h1 style="text-align:center">StudyHub</h1><p class="muted" style="text-align:center">Student learning portal</p>
-<div class="tabs"><button id="studentTab" class="tab active">Student Login</button><button id="adminTab" class="tab">Admin</button></div><div id="msg"></div>
-<div id="studentAuth"><div id="loginBox">
-<div class="field"><label>Phone / Username</label><input id="loginId"></div><div class="field"><label>Password</label><input id="loginPass" type="password"></div><button id="loginBtn" class="btn primary full">Login</button>
-<p style="text-align:center;font-size:13px">New student? <button id="toRegister" style="border:0;background:none;color:#2563eb;font-weight:700">Create account</button></p></div>
-<div id="registerBox" class="hidden"><div class="field"><label>Full name</label><input id="regName"></div><div class="field"><label>Phone / Username</label><input id="regId"></div><div class="field"><label>Password</label><input id="regPass" type="password"></div><button id="registerBtn" class="btn primary full">Create Account</button>
-<p style="text-align:center;font-size:13px">Already registered? <button id="toLogin" style="border:0;background:none;color:#2563eb;font-weight:700">Login</button></p></div></div>
-<div id="adminAuth" class="hidden"><div class="field"><label>Admin password</label><input id="adminPass" type="password"></div><button id="adminLogin" class="btn primary full">Open Admin Panel</button></div>
-</div></section>
 
-<div id="studentApp" class="hidden">
-<header class="top"><button id="menuBtn" class="menu"><i></i><i></i><i></i></button><div class="logo">Study<b>Hub</b></div><div id="avatar" class="avatar">S</div></header>
-<div id="overlay" class="overlay"></div><aside id="side" class="side"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><div class="logo">Study<b>Hub</b></div><button id="closeSide" class="btn secondary small">×</button></div><button id="homeBtn">🏠 Home</button><button id="logoutBtn">🚪 Logout</button></aside>
-<main id="studentMain"><section id="homeView"><div class="container"><div class="hero"><h1>What do you want to learn?</h1><p class="muted">Choose a subject to continue your study.</p></div><div id="subjects" class="grid3"></div></div></section>
-<section id="topicView" class="hidden"><div class="container"><button id="topicBack" class="back">← All Subjects</button><h1 id="topicTitle"></h1><div id="topics" class="grid3"></div></div></section>
-<section id="videoView" class="hidden"><div class="container"><button id="videoBack" class="back">← Topics</button><h1 id="videoTitle"></h1><div id="videos" class="grid2"></div></div></section>
-<section id="watchView" class="hidden"><div class="container"><button id="watchBack" class="back">← Videos</button><div class="card"><div class="player"><iframe id="player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div><h2 id="watchTitle"></h2></div></div></section></main></div>
+<div class="container">
+  <!-- Supabase Credentials Setup -->
+  <div id="config-section">
+    <h2>Supabase Config</h2>
+    <div class="form-group"><label>Supabase URL</label><input type="text" id="cfg-url" placeholder="https://xyz.supabase.co" /></div>
+    <div class="form-group"><label>Supabase Anon Key</label><input type="password" id="cfg-key" placeholder="your-anon-key" /></div>
+    <button onclick="initSupabase()">Save & Connect</button>
+  </div>
 
-<section id="adminPage" class="hidden"><header class="top"><div class="logo">Study<b>Hub</b> Admin</div><button id="adminExit" class="btn secondary small" style="margin-left:auto">Exit</button></header>
-<div class="container"><h1>Admin Panel</h1><p class="muted">All content is stored online in Supabase.</p><div id="adminMsg"></div>
-<div style="margin:18px 0;display:flex;gap:8px;flex-wrap:wrap"><button id="studentsBtn" class="btn secondary">👥 Students</button></div><div id="studentsPanel" class="card hidden" style="margin-bottom:18px"><h2>Students</h2><div id="students"></div></div>
-<div class="adminGrid"><div class="card"><h2>Subjects</h2><div id="adminSubjects" class="list"></div><hr><input id="newSubject" placeholder="Subject name" style="width:100%;padding:11px;border:1px solid #e5e9f0;border-radius:9px"><button id="addSubject" class="btn primary" style="margin-top:8px">+ Add Subject</button></div>
-<div class="card"><h2 id="editorTitle">Select a subject</h2><div id="editor" class="empty">Select a subject.</div></div></div></div></section>
+  <div id="app-section" class="hidden">
+    <div class="nav">
+      <span id="user-info" style="align-self:center; font-weight:bold; margin-right:auto;"></span>
+      <button id="btn-login-view" onclick="showAuth('login')">Login</button>
+      <button id="btn-reg-view" onclick="showAuth('register')">Register</button>
+      <button id="btn-admin-view" onclick="showAuth('admin')">Admin Login</button>
+      <button id="btn-logout" class="btn-danger hidden" onclick="logout()">Logout</button>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <div id="msg-box"></div>
+
+    <!-- Auth: Student Login -->
+    <div id="auth-login" class="auth-card hidden">
+      <h2>Student Login</h2>
+      <div class="form-group"><label>Username / Phone</label><input type="text" id="login-id" /></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-pass" /></div>
+      <button onclick="handleStudentLogin()">Login</button>
+    </div>
+
+    <!-- Auth: Student Registration -->
+    <div id="auth-register" class="auth-card hidden">
+      <h2>Student Registration</h2>
+      <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" /></div>
+      <div class="form-group"><label>Username / Phone</label><input type="text" id="reg-id" /></div>
+      <div class="form-group"><label>Password (Min 6 chars)</label><input type="password" id="reg-pass" /></div>
+      <button onclick="handleStudentRegister()">Register</button>
+    </div>
+
+    <!-- Auth: Admin Login -->
+    <div id="auth-admin" class="auth-card hidden">
+      <h2>Admin Login</h2>
+      <div class="form-group"><label>Admin Password</label><input type="password" id="admin-pass" /></div>
+      <button onclick="handleAdminLogin()">Login as Admin</button>
+    </div>
+
+    <!-- Student Dashboard -->
+    <div id="student-dash" class="hidden">
+      <h2>Learning Content</h2>
+      <div id="content-display">Loading content...</div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dash" class="hidden">
+      <h2>Admin Dashboard</h2>
+      
+      <h3>1. Site Content Management (JSON)</h3>
+      <div class="form-group">
+        <textarea id="site-json-input" rows="8" placeholder='{"subjects":[{"name":"Math","topics":["Calculus"]}]}'></textarea>
+      </div>
+      <button onclick="handleSaveSiteContent()">Save Content</button>
+
+      <hr style="margin:25px 0; border-color:#334155;" />
+
+      <h3>2. Student Management</h3>
+      <button class="btn-secondary" onclick="loadStudentList()">Refresh Student List</button>
+      <div id="student-list-container"></div>
+
+      <hr style="margin:25px 0; border-color:#334155;" />
+
+      <h3>3. Change Admin Password</h3>
+      <div class="form-group"><label>Current Admin Password</label><input type="password" id="old-admin-pass" /></div>
+      <div class="form-group"><label>New Admin Password</label><input type="password" id="new-admin-pass" /></div>
+      <button onclick="handleChangeAdminPassword()">Update Admin Password</button>
+    </div>
+  </div>
+</div>
+
 <script>
-const SUPABASE_URL="https://koigpkmufqorivxeggia.supabase.co";
-const SUPABASE_ANON_KEY="sb_publishable_d6K-w7SB8KVHuT-CQgSK9A_ryXPqnS4";
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let site={subjects:[]},currentSubject=null,currentTopic=null,adminSubject=null,adminOpen=false;
-const $=id=>document.getElementById(id),uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+"_"+Math.random();
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function ytId(u){try{let x=new URL(u);if(x.hostname==="youtu.be"||x.hostname.endsWith(".youtu.be"))return x.pathname.split("/")[1]||null;if(x.hostname.includes("youtube.com")){if(x.pathname==="/shorts/"||x.pathname==="/embed/")return x.pathname.split("/")[2]||null;return x.searchParams.get("v")}}catch(e){}return null}
-function message(t,ok=false){$("msg").innerHTML=t?`<div class="msg ${ok?"success":"error"}">${esc(t)}</div>`:""}
-function amsg(t,ok=false){$("adminMsg").innerHTML=t?`<div class="msg ${ok?"success":"error"}">${esc(t)}</div>`:""}
-function view(id){["homeView","topicView","videoView","watchView"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");scrollTo(0,0)}
-async function loadSite(){let r=await sb.from("site_data").select("data").eq("id",1).single();if(r.error)throw r.error;site=r.data?.data||{subjects:[]}}
-function openStudent(u){$("auth").classList.add("hidden");$("adminPage").classList.add("hidden");$("studentApp").classList.remove("hidden");$("avatar").textContent=(u.name||"S")[0].toUpperCase();renderSubjects();view("homeView")}
-function openAdmin(){adminOpen=true;$("auth").classList.add("hidden");$("studentApp").classList.add("hidden");$("adminPage").classList.remove("hidden");renderAdminSubjects()}
-function openAuth(){adminOpen=false;$("studentApp").classList.add("hidden");$("adminPage").classList.add("hidden");$("auth").classList.remove("hidden")}
-$("studentTab").onclick=()=>{$("studentTab").classList.add("active");$("adminTab").classList.remove("active");$("studentAuth").classList.remove("hidden");$("adminAuth").classList.add("hidden");message("")};
-$("adminTab").onclick=()=>{$("adminTab").classList.add("active");$("studentTab").classList.remove("active");$("studentAuth").classList.add("hidden");$("adminAuth").classList.remove("hidden");message("")};
-$("toRegister").onclick=()=>{$("loginBox").classList.add("hidden");$("registerBox").classList.remove("hidden");message("")};
-$("toLogin").onclick=()=>{$("registerBox").classList.add("hidden");$("loginBox").classList.remove("hidden");message("")};
+  let sbClient = null;
+  let currentUser = null; // { role: 'student'|'admin', data: ... }
+  let currentAdminPassword = "";
 
-$("registerBtn").onclick=async()=>{
- let name=$("regName").value.trim(),id=$("regId").value.trim(),pass=$("regPass").value;
- if(!name||!id||!pass)return message("Please fill in all fields.");
- if(pass.length<6)return message("Password must be at least 6 characters.");
- let r=await sb.rpc("register_student",{p_name:name,p_login_id:id,p_password:pass});
- if(r.error)return message(r.error.message);
- if(!r.data?.success)return message(r.data?.message||"Registration failed.");
- message("Account created. You can login now.",true);$("registerBox").classList.add("hidden");$("loginBox").classList.remove("hidden");$("loginId").value=id;$("loginPass").value="";
-};
-$("loginBtn").onclick=async()=>{
- let id=$("loginId").value.trim(),pass=$("loginPass").value;if(!id||!pass)return message("Enter username and password.");
- let r=await sb.rpc("login_student",{p_login_id:id,p_password:pass});if(r.error)return message(r.error.message);if(!r.data?.success)return message(r.data?.message||"Wrong username or password.");
- localStorage.setItem("studyhub_user",JSON.stringify({name:r.data.name,login_id:r.data.login_id,id:r.data.id}));openStudent(r.data);
-};
-$("adminLogin").onclick=async()=>{let p=$("adminPass").value;if(!p)return message("Enter admin password.");let r=await sb.rpc("admin_login",{p_password:p});if(r.error)return message(r.error.message);if(!r.data?.success)return message("Wrong admin password.");sessionStorage.setItem("studyhub_admin","1");openAdmin()};
-$("adminExit").onclick=openAuth;
-$("logoutBtn").onclick=()=>{localStorage.removeItem("studyhub_user");openAuth()};
-$("homeBtn").onclick=()=>{closeSide();renderSubjects();view("homeView")};
-$("menuBtn").onclick=()=>{$("side").classList.add("open");$("overlay").classList.add("show")};$("closeSide").onclick=closeSide;$("overlay").onclick=closeSide;function closeSide(){$("side").classList.remove("open");$("overlay").classList.remove("show")}
+  function showMessage(msg, isError = false) {
+    const box = document.getElementById('msg-box');
+    box.innerHTML = `<div class="alert ${isError ? 'alert-error' : 'alert-success'}">${msg}</div>`;
+    setTimeout(() => box.innerHTML = '', 4000);
+  }
 
-function renderSubjects(){$("subjects").innerHTML=site.subjects.map(s=>`<div class="card click" onclick="openTopics('${s.id}')"><div style="font-size:34px">${esc(s.icon||"📚")}</div><h2>${esc(s.name)}</h2><p class="muted">${s.topics.length} chapter(s)</p></div>`).join("")||'<div class="empty" style="grid-column:1/-1">No subjects yet.</div>'}
-function openTopics(id){currentSubject=site.subjects.find(x=>x.id===id);if(!currentSubject)return;$("topicTitle").textContent=currentSubject.name;$("topics").innerHTML=currentSubject.topics.map(t=>`<div class="card click" onclick="openVideos('${t.id}')"><h3>${esc(t.name)}</h3><p class="muted">${t.videos.length} video(s)</p></div>`).join("")||'<div class="empty" style="grid-column:1/-1">No chapters yet.</div>';view("topicView")}
-function openVideos(id){currentTopic=currentSubject.topics.find(x=>x.id===id);if(!currentTopic)return;$("videoTitle").textContent=currentTopic.name;$("videos").innerHTML=currentTopic.videos.map((v,i)=>{let y=ytId(v.url);return `<article class="card"><div class="thumb"><img src="https://img.youtube.com/vi/${esc(y)}/hqdefault.jpg"></div><h3>${esc(v.title)}</h3><p class="muted">${esc(currentSubject.name)} • ${esc(currentTopic.name)}</p><button class="btn primary full watch" onclick="openWatch(${i})">▶ Watch Video</button></article>`}).join("")||'<div class="empty" style="grid-column:1/-1">No videos yet.</div>';view("videoView")}
-function openWatch(i){let v=currentTopic.videos[i],y=ytId(v.url);if(!y)return;$("watchTitle").textContent=v.title;$("player").src=`https://www.youtube.com/embed/${encodeURIComponent(y)}?rel=0&playsinline=1`;view("watchView")}
-$("topicBack").onclick=()=>view("homeView");$("videoBack").onclick=()=>view("topicView");$("watchBack").onclick=()=>{$("player").src="";view("videoView")};
+  function initSupabase() {
+    const url = document.getElementById('cfg-url').value.trim();
+    const key = document.getElementById('cfg-key').value.trim();
+    if(!url || !key) return alert('Supabase URL & Key enter korun.');
 
-async function saveSite(){let r=await sb.rpc("admin_save_site",{p_data:site});if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.message||"Could not save")}
-function renderAdminSubjects(){$("adminSubjects").innerHTML=site.subjects.map(s=>`<div class="item"><span>${esc(s.icon||"📚")} ${esc(s.name)}</span><div class="actions"><button class="btn secondary small" onclick="manageSubject('${s.id}')">Manage</button><button class="btn danger small" onclick="removeSubject('${s.id}')">×</button></div></div>`).join("")||'<div class="empty">No subjects.</div>'}
-$("addSubject").onclick=async()=>{let n=$("newSubject").value.trim();if(!n)return;site.subjects.push({id:uid(),name:n,icon:"📚",topics:[]});try{await saveSite();$("newSubject").value="";renderAdminSubjects()}catch(e){amsg(e.message)}}
-function manageSubject(id){adminSubject=site.subjects.find(x=>x.id===id);if(!adminSubject)return;$("editorTitle").textContent="Manage: "+adminSubject.name;renderEditor()}
-async function removeSubject(id){if(!confirm("Delete subject and all chapters/videos?"))return;site.subjects=site.subjects.filter(x=>x.id!==id);adminSubject=null;try{await saveSite();renderAdminSubjects();$("editorTitle").textContent="Select a subject";$("editor").innerHTML='<div class="empty">Select a subject.</div>'}catch(e){amsg(e.message)}}
-function renderEditor(){let s=adminSubject;$("editor").className="";$("editor").innerHTML=`<div class="field"><label>Subject name</label><input id="subName" value="${esc(s.name)}"></div><div class="field"><label>Icon</label><input id="subIcon" value="${esc(s.icon||"📚")}"></div><button class="btn primary" onclick="saveSubjectInfo()">Save Subject</button><hr><h3>Chapters</h3><div class="list">${s.topics.map(t=>`<div class="item"><span>${esc(t.name)} (${t.videos.length})</span><div class="actions"><button class="btn secondary small" onclick="manageTopic('${t.id}')">Manage</button><button class="btn danger small" onclick="removeTopic('${t.id}')">×</button></div></div>`).join("")||'<div class="empty">No chapters.</div>'}</div><hr><input id="newTopic" placeholder="Chapter name" style="width:100%;padding:11px;border:1px solid #e5e9f0;border-radius:9px"><button class="btn primary" style="margin-top:8px" onclick="addTopic()">+ Add Chapter</button><div id="topicEditor" style="margin-top:18px"></div>`}
-async function saveSubjectInfo(){adminSubject.name=$("subName").value.trim()||adminSubject.name;adminSubject.icon=$("subIcon").value.trim()||"📚";try{await saveSite();renderAdminSubjects();renderEditor()}catch(e){amsg(e.message)}}
-async function addTopic(){let n=$("newTopic").value.trim();if(!n)return;adminSubject.topics.push({id:uid(),name:n,videos:[]});try{await saveSite();renderEditor()}catch(e){amsg(e.message)}}
-async function removeTopic(id){if(!confirm("Delete chapter and videos?"))return;adminSubject.topics=adminSubject.topics.filter(x=>x.id!==id);try{await saveSite();renderEditor()}catch(e){amsg(e.message)}}
-function manageTopic(id){let t=adminSubject.topics.find(x=>x.id===id);$("topicEditor").innerHTML=`<div class="card"><h3>${esc(t.name)}</h3><div class="field"><label>Chapter name</label><input id="topicName" value="${esc(t.name)}"></div><button class="btn secondary small" onclick="saveTopic('${id}')">Save Name</button><hr><h4>Videos</h4><div class="list">${t.videos.map((v,i)=>`<div class="item"><span>${esc(v.title)}</span><button class="btn danger small" onclick="removeVideo('${id}',${i})">Delete</button></div>`).join("")||'<div class="empty">No videos.</div>'}</div><hr><h4>Add YouTube Video</h4><div class="field"><label>Video title</label><input id="videoName"></div><div class="field"><label>YouTube URL</label><input id="videoUrl"></div><button class="btn primary" onclick="addVideo('${id}')">+ Add Video</button></div>`}
-async function saveTopic(id){let t=adminSubject.topics.find(x=>x.id===id),n=$("topicName").value.trim();if(n)t.name=n;try{await saveSite();renderEditor();manageTopic(id)}catch(e){amsg(e.message)}}
-async function addVideo(id){let t=adminSubject.topics.find(x=>x.id===id),title=$("videoName").value.trim(),url=$("videoUrl").value.trim(),y=ytId(url);if(!title||!y)return alert("Enter a title and valid YouTube URL.");t.videos.push({id:uid(),title,url});try{await saveSite();renderEditor();manageTopic(id)}catch(e){amsg(e.message)}}
-async function removeVideo(id,i){let t=adminSubject.topics.find(x=>x.id===id);if(!confirm("Delete video?"))return;t.videos.splice(i,1);try{await saveSite();renderEditor();manageTopic(id)}catch(e){amsg(e.message)}}
+    sbClient = supabase.createClient(url, key);
+    document.getElementById('config-section').classList.add('hidden');
+    document.getElementById('app-section').classList.remove('hidden');
+    showAuth('login');
+    loadPublicData();
+  }
 
-$("studentsBtn").onclick=async()=>{let p=prompt("Enter admin password to view students:");if(!p)return;let r=await sb.rpc("admin_list_students",{p_password:p});if(r.error)return amsg(r.error.message);if(!r.data?.success)return amsg("Wrong admin password.");$("studentsPanel").classList.remove("hidden");$("students").innerHTML=r.data.students.map(s=>`<div class="item"><div><b>${esc(s.name)}</b><div class="muted">${esc(s.login_id)}</div></div><button class="btn secondary small" onclick="changeStudentPassword('${esc(s.id)}','${esc(s.login_id)}')">Change password</button></div>`).join("")||'<div class="empty">No students.</div>'}
-async function changeStudentPassword(id,login){let p=prompt("New password for "+login);if(!p)return;if(p.length<6)return alert("Minimum 6 characters.");let admin=prompt("Admin password");if(!admin)return;let r=await sb.rpc("admin_change_password",{p_admin_password:admin,p_student_id:id,p_new_password:p});if(r.error||!r.data?.success)return alert(r.error?.message||r.data?.message||"Could not change password");alert("Password changed.")}
+  function hideAllViews() {
+    ['auth-login', 'auth-register', 'auth-admin', 'student-dash', 'admin-dash'].forEach(id => {
+      document.getElementById(id).classList.add('hidden');
+    });
+  }
 
-sb.channel("studyhub-live").on("postgres_changes",{event:"UPDATE",schema:"public",table:"site_data",filter:"id=eq.1"},payload=>{site=payload.new.data||{subjects:[]};renderSubjects();if(adminOpen)renderAdminSubjects()}).subscribe();
+  function showAuth(type) {
+    hideAllViews();
+    if(type === 'login') document.getElementById('auth-login').classList.remove('hidden');
+    if(type === 'register') document.getElementById('auth-register').classList.remove('hidden');
+    if(type === 'admin') document.getElementById('auth-admin').classList.remove('hidden');
+  }
 
-(async()=>{try{await loadSite();let u=JSON.parse(localStorage.getItem("studyhub_user")||"null");if(u?.id)openStudent(u);else renderSubjects()}catch(e){message("Could not connect to Supabase: "+e.message)}})();
+  // --- Student Auth ---
+  async function handleStudentRegister() {
+    const name = document.getElementById('reg-name').value;
+    const login_id = document.getElementById('reg-id').value;
+    const password = document.getElementById('reg-pass').value;
+
+    const { data, error } = await sbClient.rpc('register_student', {
+      p_name: name, p_login_id: login_id, p_password: password
+    });
+
+    if(error || !data.success) {
+      return showMessage(data?.message || error?.message || 'Registration failed', true);
+    }
+    showMessage('Registration successful! Please login.');
+    showAuth('login');
+  }
+
+  async function handleStudentLogin() {
+    const login_id = document.getElementById('login-id').value;
+    const password = document.getElementById('login-pass').value;
+
+    const { data, error } = await sbClient.rpc('login_student', {
+      p_login_id: login_id, p_password: password
+    });
+
+    if(error || !data.success) {
+      return showMessage(data?.message || error?.message || 'Login failed', true);
+    }
+
+    currentUser = { role: 'student', name: data.name, id: data.id };
+    updateUIState();
+  }
+
+  // --- Admin Auth & Actions ---
+  async function handleAdminLogin() {
+    const pass = document.getElementById('admin-pass').value;
+
+    const { data, error } = await sbClient.rpc('admin_login', { p_password: pass });
+
+    if(error || !data.success) {
+      return showMessage(data?.message || error?.message || 'Admin login failed', true);
+    }
+
+    currentUser = { role: 'admin' };
+    currentAdminPassword = pass;
+    updateUIState();
+    loadStudentList();
+  }
+
+  async function loadPublicData() {
+    const { data, error } = await sbClient.from('site_data').select('data').eq('id', 1).single();
+    if(!error && data) {
+      document.getElementById('content-display').innerHTML = `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+      document.getElementById('site-json-input').value = JSON.stringify(data.data, null, 2);
+    }
+  }
+
+  async function handleSaveSiteContent() {
+    try {
+      const jsonData = JSON.parse(document.getElementById('site-json-input').value);
+      const { data, error } = await sbClient.rpc('admin_save_site', { p_data: jsonData });
+      if(error || !data.success) throw new Error(error?.message || 'Save failed');
+      showMessage('Site data updated successfully!');
+      loadPublicData();
+    } catch(err) {
+      showMessage('Invalid JSON or error: ' + err.message, true);
+    }
+  }
+
+  async function loadStudentList() {
+    if(!currentAdminPassword) return;
+    const { data, error } = await sbClient.rpc('admin_list_students', { p_password: currentAdminPassword });
+    if(error || !data.success) return showMessage('Failed to fetch students', true);
+
+    let html = `<table><tr><th>Name</th><th>Login ID</th><th>Created At</th><th>Action</th></tr>`;
+    data.students.forEach(s => {
+      html += `<tr>
+        <td>${s.name}</td>
+        <td>${s.login_id}</td>
+        <td>${new Date(s.created_at).toLocaleDateString()}</td>
+        <td><button class="btn-secondary" onclick="changeStudentPass('${s.id}')">Change Pass</button></td>
+      </tr>`;
+    });
+    html += `</table>`;
+    document.getElementById('student-list-container').innerHTML = html;
+  }
+
+  async function changeStudentPass(studentId) {
+    const newPass = prompt("Enter new password for student (Min 6 chars):");
+    if(!newPass) return;
+
+    const { data, error } = await sbClient.rpc('admin_change_password', {
+      p_admin_password: currentAdminPassword,
+      p_student_id: studentId,
+      p_new_password: newPass
+    });
+
+    if(error || !data.success) {
+      return showMessage(data?.message || error?.message || 'Failed to change password', true);
+    }
+    showMessage('Student password updated successfully!');
+  }
+
+  async function handleChangeAdminPassword() {
+    const oldPass = document.getElementById('old-admin-pass').value;
+    const newPass = document.getElementById('new-admin-pass').value;
+
+    const { data, error } = await sbClient.rpc('change_admin_password', {
+      p_old_password: oldPass, p_new_password: newPass
+    });
+
+    if(error || !data.success) {
+      return showMessage(data?.message || error?.message || 'Password update failed', true);
+    }
+    showMessage('Admin password changed successfully! Please log in again.');
+    currentAdminPassword = newPass;
+    logout();
+  }
+
+  function updateUIState() {
+    hideAllViews();
+    const userInfo = document.getElementById('user-info');
+    const logoutBtn = document.getElementById('btn-logout');
+
+    if(!currentUser) {
+      userInfo.innerText = '';
+      logoutBtn.classList.add('hidden');
+      showAuth('login');
+      return;
+    }
+
+    logoutBtn.classList.remove('hidden');
+    if(currentUser.role === 'student') {
+      userInfo.innerText = `Student: ${currentUser.name}`;
+      document.getElementById('student-dash').classList.remove('hidden');
+      loadPublicData();
+    } else if(currentUser.role === 'admin') {
+      userInfo.innerText = `Role: Admin`;
+      document.getElementById('admin-dash').classList.remove('hidden');
+      loadPublicData();
+    }
+  }
+
+  function logout() {
+    currentUser = null;
+    currentAdminPassword = "";
+    updateUIState();
+  }
 </script>
-</body></html>
+</body>
+</html>
